@@ -1,0 +1,4 @@
+export const DELETE_COMMENT = "DELETE_COMMENT";
+export const EDIT_COMMENT = "EDIT_COMMENT";
+export const COMMENT_POST = "COMMENT_POST";
+export const GET_USER_SUBS_POSTS = "GET_USER_SUBS_POSTS";

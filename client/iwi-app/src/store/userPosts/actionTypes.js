@@ -1,0 +1,9 @@
+export const GET_USER_POSTS = "GET_USER_POSTS";
+export const MAKE_POST = "MAKE_POST";
+export const EDIT_POST = "EDIT_POST";
+export const EDIT = "EDIT";
+export const COMMENT_POST = "COMMENT_POST";
+export const DELETE_COMMENT = "DELETE_COMMENT";
+export const RESET_POSTS = "RESET_POSTS";
+export const EDIT_COMMENT = "EDIT_COMMENT";
+export const DELETE_POST = "DELETE_POST";

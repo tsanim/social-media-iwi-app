@@ -1,0 +1,55 @@
+const env = process.env.NODE_ENV || 'development';
+
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+const encryption = require('../utils/encryption');
+const { defaultUserImage } = require('../config/config')[env];
+
+const userSchema = new Schema({
+    username: { type: Schema.Types.String, required: true },
+    email: { type: Schema.Types.String, required: true },
+    firstName: { type: Schema.Types.String, required: true },
+    lastName: { type: Schema.Types.String, required: true },
+    imageId: { type: Schema.Types.ObjectId, default: new mongoose.mongo.ObjectID(defaultUserImage) },
+    hashedPassword: { type: Schema.Types.String, required: true },
+    salt: { type: Schema.Types.String, required: true },
+    followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    subscriptions: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    roles: [{ type: String, required: true }],
+    posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }],
+    comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }]
+});
+
+userSchema.method({
+    authenticate: function (password) {
+        const currentHashedPass = encryption.generateHashedPassword(this.salt, password);
+
+        return currentHashedPass === this.hashedPassword;
+    }
+})
+
+const User = mongoose.model('User', userSchema);
+
+User.seedAdmin = async () => {
+    try {
+        const users = await User.find({});
+        if (users.length > 0) return;
+
+        const salt = encryption.generateSalt();
+        const hashedPassword = encryption.generateHashedPassword(salt, 'Admin');
+
+        return User.create({
+            username: 'Admin',
+            email: 'Admin@admin.com',
+            firstName: 'Tsani',
+            lastName: 'Mazalov',
+            hashedPassword,
+            roles: ['Admin'],
+            salt,
+        })
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+module.exports = User;
