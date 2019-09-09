@@ -7,6 +7,7 @@ import URI from '../../config/config';
 export function makeComment(commentData) {
     return async (dispatch) => {
         try {
+            //make post req to create a comment than get commen data by res
             const res = await fetch(`${URI}/feed/comments/create`, {
                 method: 'POST',
                 headers: {
@@ -31,6 +32,7 @@ export function makeComment(commentData) {
 export function likeComment(commentId) {
     return async (dispatch) => {
         try {
+            //make a put req to change comment from unliked to liked
             const res = await fetch(`${URI}/feed/comments/like/${commentId}`, {
                 method: 'PUT',
                 headers: {
@@ -53,6 +55,7 @@ export function likeComment(commentId) {
 export function dislikeComment(commentId) {
     return async (dispatch) => {
         try {
+            //make a put req to change comment from liked to unliked
             const res = await fetch(`${URI}/feed/comments/dislike/${commentId}`, {
                 method: 'PUT',
                 headers: {
@@ -75,6 +78,7 @@ export function dislikeComment(commentId) {
 export function deleteComment(commentId) {
     return async (dispatch) => {
         try {
+            //make a delete req 
             const res = await fetch(`${URI}/feed/comments/delete/${commentId}`, {
                 method: 'DELETE',
                 headers: {

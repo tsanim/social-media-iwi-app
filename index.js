@@ -1,15 +1,25 @@
+//init env 
 const env = process.env.NODE_ENV || 'development';
 
+//init express
 const express = require('express');
 
+//init config object
 const config = require('./config/config')[env];
 
 const favicon = require('express-favicon');
 const path = require('path');
 
+//init db
 require('./config/database')(config);
+
+//init app
 const app = express();
+
+//init express
 require('./config/express')(app);
+
+//init routes
 require('./config/routes')(app);
 
 // General error handling

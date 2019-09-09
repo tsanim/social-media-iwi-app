@@ -2,19 +2,22 @@ const env = process.env.NODE_ENV || 'development';
 
 const { validationResult } = require('express-validator/check');
 
+const mongoose = require('mongoose');
+const conn = mongoose.connection;
+
 const User = require('../models/User');
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 
 const encryption = require('../utils/encryption');
-const mongoose = require('mongoose');
-const conn = mongoose.connection;
 
+//get default image from config file(dedault image is id store in db)
 const { defaultUserImage } = require('../config/config')[env];
 
 module.exports = {
     getUserById: async (req, res, next) => {
         try {
+            //get user id fromr req params
             const userId = req.params.userId;
 
             const user = await User.findById(userId)
@@ -47,6 +50,7 @@ module.exports = {
                     }
                 });
 
+            //assign new user info object
             const userInfo = Object.assign({}, {
                 username: user.username,
                 posts: user.posts,
@@ -69,7 +73,9 @@ module.exports = {
     },
     changeProfilePicture: async (req, res, next) => {
         try {
+            //get user id from req user id prop from decoded token
             const userId = req.userId;
+            //find user by id
             const user = await User.findById(userId);
 
             //delete the photo before upload with the aim to reduce old files in db
@@ -82,6 +88,7 @@ module.exports = {
                     bucket.delete(id);
                 }
 
+                //update user with new image id
                 User.findByIdAndUpdate(userId, { imageId: req.file.id }, { new: true, useFindAndModify: false }, (error, userDoc) => {
                     if (error) {
                         error.statusCode = 500;
@@ -135,9 +142,13 @@ module.exports = {
     editUserInfo: async (req, res, next) => {
         if (validateUser(req)) {
             try {
+                //get user id fromr req user id prop from decoded token
                 const userId = req.userId;
+
+                //init req body
                 const reqBody = req.body;
 
+                //update user info with req body object that contains all new user info
                 User.findByIdAndUpdate(userId, reqBody, { new: true, useFindAndModify: false }, (error, userDoc) => {
                     if (error) {
                         error.statusCode = 500;
@@ -223,8 +234,10 @@ module.exports = {
     },
     followUser: async (req, res, next) => {
         try {
+            //get followed user id from req params
             const { followedUserId } = req.params;
 
+            //find followed user by id
             const followedUser = await User.findById(followedUserId)
                 .populate({
                     path: 'posts',
@@ -255,6 +268,7 @@ module.exports = {
                     }
                 });
 
+            //find user by req user id from decoded token in middleware
             const user = await User.findById(req.userId)
                 .populate({
                     path: 'posts',
@@ -285,7 +299,9 @@ module.exports = {
                     }
                 });
 
+            //update followed user's followers array  
             followedUser.followers = pushInUserArray(followedUser.followers, user);
+            //update user's subscriptions array  
             user.subscriptions = pushInUserArray(user.subscriptions, followedUser)
 
             followedUser.save();
@@ -298,7 +314,10 @@ module.exports = {
     },
     unfollowUser: async (req, res, next) => {
         try {
+            //get unfollowed user id
             const { unfollowedUserId } = req.params;
+
+            //find unfollowed user by id
             const unfollowedUser = await User.findById(unfollowedUserId)
                 .populate({
                     path: 'posts',
@@ -328,6 +347,7 @@ module.exports = {
                     }
                 });
 
+            //find user by user id from decoded token
             const user = await User.findById(req.userId)
                 .populate({
                     path: 'posts',
@@ -357,7 +377,9 @@ module.exports = {
                     }
                 });
 
+            //filter unfollowed user's followers array 
             unfollowedUser.followers = filterUserArray(unfollowedUser.followers, user._id.toString());
+            //filter user's subscriptions array 
             user.subscriptions = filterUserArray(user.subscriptions, unfollowedUser._id.toString());
 
             unfollowedUser.save();
@@ -370,10 +392,13 @@ module.exports = {
     },
     searchUser: async (req, res, next) => {
         try {
+            //get search text from query
             const { searchText } = req.query;
 
+            //find all users
             const users = await User.find({});
 
+            //filter users like going to find all users with username that includes that search text
             let filteredUsers = users.filter(u => u.username.toLowerCase().startsWith(searchText.toLowerCase()));
             filteredUsers.forEach(u => {
                 u.hashedPassword = undefined;
@@ -388,9 +413,12 @@ module.exports = {
     },
     changePassword: async (req, res, next) => {
         try {
+            //get old pass and new pass 
             const { oldPassword, newPassword } = req.body;
+            //get user id from req user id
             const userId = req.userId;
 
+            //find user by id
             const user = await User.findById(userId);
 
             //check if old password is not wrong
@@ -417,11 +445,11 @@ module.exports = {
             const newSalt = encryption.generateSalt();
             const newHashedPassword = encryption.generateHashedPassword(newSalt, newPassword);
 
-            updatedUser = Object.assign({}, {
+            //init new updated user obj with new salt and hashed pass
+            let updatedUser = Object.assign({}, {
                 salt: newSalt,
                 hashedPassword: newHashedPassword,
             })
-
 
             User.findByIdAndUpdate(userId, updatedUser, { new: true, useFindAndModify: false }, (error, userDoc) => {
                 if (error) {

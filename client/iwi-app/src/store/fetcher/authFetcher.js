@@ -5,6 +5,7 @@ import URI from '../../config/config';
 export function registerUser(userData) {
     return async (dispatch) => {
         try {
+            //make post req with fetch to sign up
             const res = await fetch(`${URI}/auth/signup`, {
                 method: 'POST',
                 headers: {
@@ -50,6 +51,7 @@ export function registerUser(userData) {
 export function loginUser(userData) {
     return async (dispatch) => {
         try {
+            //make post req to sign in 
             const res = await fetch(`${URI}/auth/signin`, {
                 method: 'POST',
                 headers: {

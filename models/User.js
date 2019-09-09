@@ -20,6 +20,7 @@ const userSchema = new Schema({
     comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }]
 });
 
+//add schema method for authenticate to check if hashed pass is valid
 userSchema.method({
     authenticate: function (password) {
         const currentHashedPass = encryption.generateHashedPassword(this.salt, password);
@@ -30,6 +31,7 @@ userSchema.method({
 
 const User = mongoose.model('User', userSchema);
 
+//when app is set up and db is empty first we seed admin 
 User.seedAdmin = async () => {
     try {
         const users = await User.find({});

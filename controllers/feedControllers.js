@@ -1,5 +1,4 @@
 const { validationResult } = require('express-validator/check');
-const qs = require('query-string');
 
 const mongoose = require('mongoose');
 const conn = mongoose.connection;
@@ -8,9 +7,12 @@ const Post = require('../models/Post');
 const User = require('../models/User');
 const Comment = require('../models/Comment');
 
-
+//function for validate post data from request
 function validatePost(req, res) {
+    //get errors (if there are) from validationResult func from express-validator 
     const errors = validationResult(req);
+
+    //if errrors array not empty, then return message to user for incorect data
     if (!errors.isEmpty()) {
         res.status(422).json({
             message: 'Validation failed, entered data is incorrect',
@@ -26,28 +28,37 @@ function validatePost(req, res) {
 
 module.exports = {
     getImage: (req, res, next) => {
+
+        //init fs bucket from mongo
         const bucket = new mongoose.mongo.GridFSBucket(conn.db);
 
+        //get image id with req params from db
         let id = new mongoose.mongo.ObjectID(req.params.imageId);
 
+        //init download stream
         let downloadStream = bucket.openDownloadStream(id);
 
+        //when stream trigger 'data' event , write givven chunk to response
         downloadStream.on('data', (chunk) => {
             res.write(chunk);
         });
 
+        //when stream trigger 'error' event , return message that image is not found
         downloadStream.on('error', () => {
             res.status(404).json({ message: 'Image not found!' });
         });
 
+        //when stream trigger 'end' event, end res
         downloadStream.on('end', () => {
             res.end();
         });
     },
     getAllUserPosts: async (req, res, next) => {
         try {
+            //find user by req user id prop from decoded token
             const user = await User.findById(req.userId);
 
+            //find all posts that are with user id creator and populate their prop to user can get acces to their props from db
             const posts = await Post.find({ creator: { "$in": user._id } })
                 .populate('creator')
                 .populate('comments')
@@ -70,8 +81,10 @@ module.exports = {
     },
     getAllUserSubsPosts: async (req, res, next) => {
         try {
+            //find user by req user id prop from decoded token
             const user = await User.findById(req.userId);
 
+            //find all posts that are with creators which are user subscriptions list and populate their props
             const posts = await Post.find({ creator: { "$in": user.subscriptions } })
                 .populate('creator')
                 .populate({
@@ -107,11 +120,16 @@ module.exports = {
         }
     },
     createPost: async (req, res, next) => {
+        //check post data
         if (validatePost(req)) {
             try {
+                //init req body
                 const reqBody = req.body;
-                const newPost = Object.assign({}, reqBody, { creator: req.userId });
 
+                //assign req body object with object that contain post creator to new post object
+                const newPost = Object.assign({}, reqBody, { creator: req.userId });
+                
+                //if there is no text or file - send message to user that he can not upload post with empty data
                 if (reqBody.text && reqBody.text === '' && !req.file) {
                     let error = new Error('You can not upload post with empty text or no image!')
                     error.statusCode = 500;
@@ -119,12 +137,16 @@ module.exports = {
                     throw error;
                 }
 
+                //if there is req file add image id prop to new post object 
                 if (req.file) {
                     newPost.imageId = req.file.id.toString();
                 }
 
+                //create post
                 let post = await Post.create(newPost);
+                //populate creator and likes
                 post = await post.populate('creator').populate('likes').execPopulate();
+                //find user that are creator to push new post to his posts array
                 const user = await User.findById(post.creator).populate('post');
 
                 user.posts.push(post._id);
@@ -143,9 +165,12 @@ module.exports = {
     },
     editPost: async (req, res, next) => {
         try {
+            //init req body obj
             const reqBody = req.body;
+            //get post id from req params prop
             const { postId } = req.params;
 
+            //update post with req body obj 
             Post.findByIdAndUpdate(postId, reqBody, { new: true, useFindAndModify: false }, (err, postDoc) => {
                 if (err) {
                     if (!err.statusCode) {
@@ -176,9 +201,12 @@ module.exports = {
     },
     editComment: async (req, res, next) => {
         try {
+            //init req body obj
             const reqBody = req.body;
+            //get comment id fromr req params 
             const { commentId } = req.params;
 
+            //update comment
             Comment.findByIdAndUpdate(commentId, reqBody, { new: true, useFindAndModify: false }, (err, commDoc) => {
                 if (err) {
                     if (!err.statusCode) {
@@ -217,6 +245,7 @@ module.exports = {
     },
     deletePost: (req, res, next) => {
         try {
+            //get post id from req params prop
             const { postId } = req.params;
 
             Post.findByIdAndDelete(postId, async (err, post) => {
@@ -228,6 +257,7 @@ module.exports = {
                     next(err);
                 }
 
+                //find user that is creator to deleted post
                 const user = await User.findById(post.creator).populate('posts')
                     .populate('comments')
                     .populate({
@@ -251,14 +281,17 @@ module.exports = {
                         }
                     });
 
+                //delete all comments on deleted post
                 await Comment.deleteMany({ post: post._id });
 
+                //filter user posts
                 const newUserPosts = user.posts.filter(userP => userP._id.toString() !== post.id);
 
-
+                //update user posts
                 user.posts = newUserPosts;
                 user.save();
 
+                //if post has a image - then remove it from db (for collecting more space)
                 if (post.imageId) {
                     const bucket = new mongoose.mongo.GridFSBucket(conn.db);
 
@@ -279,14 +312,18 @@ module.exports = {
     },
     likePost: async (req, res, next) => {
         try {
+            //get post id from req params
             const { postId } = req.params;
 
+            //find post by id
             let post = await Post.findById(postId);
 
+            //if post's likes array does not contain user id - then push user id to post likes
             if (post.likes.indexOf(req.userId) === -1) {
                 post.likes.push(req.userId);
             }
 
+            //populate creator, comments' creator, likes
             post = await post.populate('creator').populate({
                 path: 'comments',
                 populate: {
@@ -308,10 +345,13 @@ module.exports = {
     },
     dislikePost: async (req, res, next) => {
         try {
+            //get post id from req params
             const { postId } = req.params;
 
+            //find post by id
             let post = await Post.findById(postId);
 
+            //if post's likes array contain user id - then filter post's likes array
             if (post.likes.indexOf(req.userId) >= 0) {
                 post.likes = post.likes.filter(like => like.toString() !== req.userId);
             }
@@ -337,9 +377,13 @@ module.exports = {
     },
     likeComment: async (req, res, next) => {
         try {
+            //get comment id from req params
             const { commentId } = req.params;
 
+            //find comment by id 
             let comment = await Comment.findById(commentId);
+
+            //find post by comment post 
             let post = await Post.findById(comment.post).populate('creator').populate('likes').populate('comments').populate({
                 path: 'comments',
                 populate: {
@@ -347,14 +391,17 @@ module.exports = {
                 }
             });
 
+            //if comment's likes array does not contain user id - then push user id to comment's likes array
             if (comment.likes.indexOf(req.userId) === -1) {
                 comment.likes.push(req.userId);
             }
 
             comment = await comment.populate('creator').execPopulate();
 
+            //get index of liked comment from the post
             const indexOfLikedCom = post.comments.findIndex((c) => c._id.toString() === comment.id)
 
+            //update post comments as change old unliked comment with new - liked
             post.comments[indexOfLikedCom] = comment;
             comment.save();
             post.save();
@@ -370,9 +417,13 @@ module.exports = {
     },
     dislikeComment: async (req, res, next) => {
         try {
+            //get comment id from req params
             const { commentId } = req.params;
 
+            //find comment by id 
             let comment = await Comment.findById(commentId);
+
+            //find post by comment post 
             let post = await Post.findById(comment.post)
                 .populate('creator')
                 .populate('likes')
@@ -383,14 +434,17 @@ module.exports = {
                     }
                 });
 
+            //if comment's likes array contain user id - then filter comment's likes array
             if (comment.likes.indexOf(req.userId) >= 0) {
                 comment.likes = comment.likes.filter(like => like.toString() !== req.userId);
             }
 
             comment = await comment.populate('creator').execPopulate();
 
+            //get index of disliked comment 
             const indexOfDislikedCom = post.comments.findIndex((c) => c._id.toString() === comment.id)
 
+            //update post comments as change old unliked comment with new - liked
             post.comments[indexOfDislikedCom] = comment;
 
             comment.save();
@@ -422,8 +476,10 @@ module.exports = {
     },
     createComment: async (req, res, next) => {
         try {
+            //init comment data fromr req body
             const { text, postId } = req.body;
 
+            //if text is empty string then return error
             if (text === '') {
                 let error = new Error('You can not make comment without text!')
                 error.statusCode = 500;
@@ -431,16 +487,22 @@ module.exports = {
                 throw error;
             }
 
+            //find user by req user id prop from decoded token
             const user = await User.findById(req.userId);
+
+            //find post by id
             let post = await Post.findById(postId);
 
+            //create comment
             let comment = await Comment.create({ text, creator: req.userId, post: postId });
             comment = await comment.populate('creator').execPopulate();
 
             user.comments.push(comment._id);
             user.save();
 
+            //update post's comments array like push new comment id
             post.comments.push(comment._id);
+
             post = await post.populate('creator').populate('comments').populate('likes').populate({
                 path: 'comments',
                 populate: {
@@ -461,6 +523,7 @@ module.exports = {
     },
     deleteComment: (req, res, next) => {
         try {
+            //get comment id from req params
             const { commentId } = req.params;
 
             Comment.findByIdAndDelete(commentId, async (err, comment) => {
@@ -472,16 +535,21 @@ module.exports = {
                     next(err);
                 }
 
+                //find user by comment creator
                 let user = await User.findById(comment.creator)
 
+                //find commented post by comment post
                 let commentedPost = await Post.findById(comment.post);
 
+                //filter user comments
                 const newUserComments = user.comments.filter(userC => userC._id.toString() !== comment.id);
+                //filter post comments
                 const newPostComments = commentedPost.comments.filter(postC => postC._id.toString() !== comment.id);
 
                 user.comments = newUserComments;
                 user.save();
 
+                //update post comments
                 commentedPost.comments = newPostComments;
                 commentedPost = await commentedPost
                     .populate('creator')

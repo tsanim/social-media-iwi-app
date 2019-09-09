@@ -1,13 +1,19 @@
 const env = process.env.NODE_ENV || 'development';
 
 const User = require('../models/User');
-const encryption = require('../utils/encryption');
+
 const { validationResult } = require('express-validator/check');
 const jwt = require('jsonwebtoken');
-const cleanUserObj = require('../utils/cleanUserObj');
 
+const cleanUserObj = require('../utils/cleanUserObj');
+const encryption = require('../utils/encryption');
+
+//function for validate data from request
 function validateUser(req, res) {
+    //get errors (if there are) from validationResult func from express-validator 
     const errors = validationResult(req);
+
+    //if errrors array not empty, then return message to user for incorect data
     if (!errors.isEmpty()) {
         res.status(422).json({
             message: 'Validation failed, entered data is incorrect',
@@ -22,13 +28,17 @@ function validateUser(req, res) {
 
 module.exports = {
     signIn: (req, res, next) => {
+        
+        //check if validate func return true or false for valid data
         if (validateUser(req, res)) {
             const { email, password } = req.body;
 
+            //find user from req body email
             User.findOne({ email: email })
                 .populate('followers')
                 .populate('subscriptions')
                 .then(user => {
+                    //if user is undefined or null then send message 
                     if (!user) {
                         const error = new Error('A user with this email can not be found!');
                         error.statusCode = 401;
@@ -36,6 +46,7 @@ module.exports = {
                         throw error;
                     }
 
+                    //if check from user method return false , then send message for invalid password
                     if (!user.authenticate(password)) {
                         const error = new Error('Invalid password');
                         error.statusCode = 401;
@@ -43,6 +54,7 @@ module.exports = {
                         throw error;
                     }
 
+                    //sign new token with email and user id
                     const token = jwt.sign({
                         email: user.email,
                         userId: user._id
@@ -64,11 +76,19 @@ module.exports = {
         }
     },
     signUp: (req, res, next) => {
+        
+        //check if validate func return true or false for valid data
         if (validateUser(req, res)) {
+            //init user info from req body
             const { username, email, firstName, lastName, password } = req.body;
+
+            //generate salt 
             const salt = encryption.generateSalt();
+
+            //generate hashed pass 
             const hashedPassword = encryption.generateHashedPassword(salt, password);
 
+            //create new user
             User.create({
                 username,
                 email,

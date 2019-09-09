@@ -13,6 +13,8 @@ router.get('/info/:userId', isAuth, usersController.getUserById);
 router.get('/search', isAuth, usersController.searchUser);
 router.put('/changePic', isAuth, upload.single('avatar'), usersController.changeProfilePicture);
 router.put('/edit', isAuth, usersController.editUserInfo);
+
+//route for change pass and pass validation from check from express validator
 router.put('/changePassword', [
     check('newPassword')
         .matches(/^.*(?=.{6,})(?=.*[a-zA-Z])[a-zA-Z0-9]+$/)

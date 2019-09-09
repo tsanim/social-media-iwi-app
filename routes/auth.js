@@ -4,6 +4,7 @@ const authController = require('../controllers/authController');
 const { check } = require('express-validator/check');
 const User = require('../models/User');
 
+//route for signup with validation from check frome express-validator
 router.post('/signup', [
     check('username')
         .isLength({ min: 3 })
@@ -38,6 +39,7 @@ router.post('/signup', [
         .withMessage('Password must be at least 8 symbols!')
 ], authController.signUp);
 
+//route for signin with validation from check frome express-validator
 router.post('/signin', [
     check('email')
     .isEmail()
