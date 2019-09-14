@@ -15,7 +15,7 @@ const persistConfig = {
     key: 'root',
     storage: storage,
     stateReconciler: autoMergeLevel2,
-    whitelist: ['auth']
+    whitelist: ['auth', 'userPosts']
 }
 
 const myPersistReducer = persistReducer(persistConfig, combineReducers({ auth, userPosts, users, user, posts, fetchStatus, errors }));
