@@ -4,10 +4,12 @@ import MakePostDiv from '../../PostComponents/MakePostDiv';
 import PostsSection from '../../PostComponents/PostsSection';
 import Loader from '../../Loader/Loader';
 
+import { getUserPosts, getAllSubsPosts } from '../../../store/fetcher/postFetcher';
+
 class Home extends Component {
     render() {
         const { userPosts, subsPosts, fetchStatus } = this.props;
-        console.log(userPosts, subsPosts);
+
         return (
             <main>
                 <MakePostDiv />
@@ -19,6 +21,12 @@ class Home extends Component {
             </main>
         )
     }
+
+    componentDidMount() {
+        //when home component is rendered always fetch subs posts 
+        this.props.getSubsPosts();
+        this.props.getUserPosts(localStorage.getItem('userId'));
+    }
 }
 
 function mapStateToProps(state) {
@@ -29,4 +37,11 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps)(Home);
+function mapDispatchToProps(dispatch) {
+    return {
+      getUserPosts: (id) => dispatch(getUserPosts(id)),
+      getSubsPosts: () => dispatch(getAllSubsPosts())
+    }
+  }
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);
