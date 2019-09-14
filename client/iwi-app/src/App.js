@@ -14,8 +14,6 @@ import LoginForm from './components/Forms/LoginForm';
 import RegisterForm from './components/Forms/RegisterForm';
 import Me from './components/App/Me/Me';
 
-import { getUserPosts, getAllSubsPosts } from './store/fetcher/postFetcher';
-
 class App extends Component {
   render() {
     return (
@@ -35,13 +33,7 @@ class App extends Component {
       </div>
     );
   }
-
-  componentDidMount() {
-      this.props.getSubsPosts();
-      this.props.getUserPosts(localStorage.getItem('userId'));
-  }
 }
-
 
 function mapStateToProps(state) {
   return {
@@ -49,11 +41,4 @@ function mapStateToProps(state) {
   }
 }
 
-function mapDispatchToProps(dispatch) {
-  return {
-    getUserPosts: (id) => dispatch(getUserPosts(id)),
-    getSubsPosts: () => dispatch(getAllSubsPosts())
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(mapStateToProps, null)(App);
