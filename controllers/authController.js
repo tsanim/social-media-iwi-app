@@ -1,4 +1,5 @@
 const env = process.env.NODE_ENV || 'development';
+const jwtSecret = require('../config/config')[env].JWT_SECRET;
 
 const User = require('../models/User');
 
@@ -54,12 +55,14 @@ module.exports = {
                         throw error;
                     }
 
+                    console.log(jwtSecret);
+
                     //sign new token with email and user id
                     const token = jwt.sign({
                         email: user.email,
                         userId: user._id
                     },
-                        'sUpeRsEcReTkeY');
+                        jwtSecret);
 
                     res.status(200).json({
                         message: 'User succesfully logged in!',

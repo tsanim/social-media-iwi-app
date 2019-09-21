@@ -1,4 +1,7 @@
+const env = process.env.NODE_ENV || 'development';
+
 const jwt = require('jsonwebtoken');
+const jwtSecret = require('../config/config')[env].JWT_SECRET;
 
 module.exports = (req, res, next) => {
     //get request header for authorization
@@ -18,8 +21,10 @@ module.exports = (req, res, next) => {
 
     try {
 
+      console.log(process.env.API_KEY);
+
       //verify token from header so we can see if user is authenticated
-      decodedToken = jwt.verify(token, 'sUpeRsEcReTkeY');
+      decodedToken = jwt.verify(token, jwtSecret);
     } catch(error) {
       return res.status(401)
         .json({ message: 'Token is invalid.', error });
