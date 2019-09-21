@@ -55,8 +55,6 @@ module.exports = {
                         throw error;
                     }
 
-                    console.log(jwtSecret);
-
                     //sign new token with email and user id
                     const token = jwt.sign({
                         email: user.email,
