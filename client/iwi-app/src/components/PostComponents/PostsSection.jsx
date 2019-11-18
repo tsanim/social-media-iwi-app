@@ -1,38 +1,51 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Post from './Post';
 import sortByDate from '../../utils/sortByDate';
+import WithLoader from '../HOCS/WithLoader';
+import PropTypes from 'prop-types';
 
-class PostsSection extends Component {
-    render() {
-        const { posts } = this.props;
-        return (
-            <section id="posts">
-                {posts.length > 0
-                    ? (
-                        posts
-                            .sort(sortByDate)
-                            .map(p => {
+function PostsSection(props) {
+    return (
+        <section id="posts">
+            {props.posts.length > 0
+                ? (
+                    props.posts
+                        .sort(sortByDate)
+                        .map(p => {
                             return (<article key={p._id} className="post">
                                 <Post
-                                    username={p.creator.username}
-                                    userId={p.creator._id}
-                                    userImg={p.creator.imageId}
-                                    postId={p._id}
-                                    date={p.date}
-                                    text={p.text}
-                                    postImg={p.imageId}
-                                    likes={p.likes}
-                                    comments={p.comments}
+                                    post={p}
+                                    currUser={props.currUser}
+                                    likePostHandler={props.likePostHandler}
+                                    dislikePostHandler={props.dislikePostHandler}
+                                    deletePostHandler={props.deletePostHandler}
+                                    editUserPostHandler={props.editUserPostHandler}
+                                    likeCommentHandler={props.likeCommentHandler}
+                                    dislikeCommentHandler={props.dislikeCommentHandler}
+                                    deleteCommentHandler={props.deleteCommentHandler}
+                                    makeCommentHandler={props.makeCommentHandler}
                                 />
                             </article>
                             )
                         })
-                    )
-                    : null
-                }
-            </section>
-        )
-    }
+                )
+                : <p>There no posts!</p>
+            }
+        </section>
+    )
 }
 
-export default PostsSection;
+Post.propTypes = {
+    posts: PropTypes.array,
+    currUser: PropTypes.object,
+    likePostHandler: PropTypes.func,
+    dislikePostHandler: PropTypes.func,
+    deletePostHandler: PropTypes.func,
+    likeCommentHandler: PropTypes.func,
+    dislikeCommentHandler: PropTypes.func,
+    deleteCommentHandler: PropTypes.func,
+    makeCommentHandler: PropTypes.func,
+    editUserPostHandler: PropTypes.func,
+}
+
+export default WithLoader(PostsSection);

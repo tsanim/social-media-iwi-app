@@ -1,27 +1,29 @@
-import { createStore, combineReducers, applyMiddleware } from 'redux';
+import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
-import auth from './auth/authReducer';
-import posts from './posts/postsReducer';
-import userPosts from './userPosts/userPostsReducer';
-import users from './users/usersReducer';
-import errors from './errors/errorsReducer';
-import user from './user/userReducer';
-import fetchStatus from './fetchStatus/statusReducer';
+import errors from './reducers/errorsReducer/errorsReducer';
+import systemReducer from './reducers/systemReducer/systemReducer';
+import usersReducer from './reducers/usersReducer/usersReducer';
+import postsReducer from './reducers/postsReducer/postsReducer';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
+import immutableTransform from 'redux-persist-transform-immutable';
+import createFilter from 'redux-persist-transform-filter';
+
+const saveSubsetFilter  = createFilter('root', 'systemReducer.curUser');
 
 const persistConfig = {
+    transforms: [immutableTransform(), saveSubsetFilter],
     key: 'root',
     storage: storage,
-    stateReconciler: autoMergeLevel2,
-    whitelist: ['auth', 'userPosts']
+    whitelist: ['systemReducer', 'postsReducer', 'usersReducer']
 }
 
-const myPersistReducer = persistReducer(persistConfig, combineReducers({ auth, userPosts, users, user, posts, fetchStatus, errors }));
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+const myPersistReducer = persistReducer(persistConfig, combineReducers({ systemReducer, postsReducer, usersReducer, errorsReducer: errors }));
 
 export default () => {
-    let store = createStore(myPersistReducer, applyMiddleware(thunk));
+    let store = createStore(myPersistReducer, composeEnhancers(applyMiddleware(thunk)));
     let persistor = persistStore(store);
 
     return { store, persistor }

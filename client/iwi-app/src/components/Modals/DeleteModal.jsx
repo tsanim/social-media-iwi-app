@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 function DeleteModal({ handleClose, deleteFunc, feedId, isPost }) {
     return (
@@ -15,6 +16,13 @@ function DeleteModal({ handleClose, deleteFunc, feedId, isPost }) {
             </div>
         </div>
     )
+}
+
+DeleteModal.propTypes = {
+    handleClose: PropTypes.func,
+    deleteFunc: PropTypes.func,
+    feedId: PropTypes.string,
+    isPost: PropTypes.bool,
 }
 
 export default DeleteModal;

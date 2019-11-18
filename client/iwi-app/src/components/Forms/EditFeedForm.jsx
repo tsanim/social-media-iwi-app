@@ -1,16 +1,10 @@
 import React from 'react';
 import useForms from '../../hooks/useForms';
-import { connect } from 'react-redux';
-import { editComment } from '../../store/fetcher/commentFetcher';
-import { editPost } from '../../store/fetcher/postFetcher';
+import PropTypes from 'prop-types';
 
-function EditFeedForm({ isPost, feedId, text, editUserPost, editComm }) {
+function EditFeedForm({ feedId, text, editUserPostHandler, handleShowEditForm }) {
     const { handleSubmit, handleChangeInput, inputs } = useForms((e) => {
-        if (isPost) {
-            editUserPost(inputs, feedId);
-        } else {
-            editComm(inputs, feedId);
-        }
+        editUserPostHandler(inputs, feedId);
     });
 
     return (
@@ -23,15 +17,16 @@ function EditFeedForm({ isPost, feedId, text, editUserPost, editComm }) {
                 onChange={handleChangeInput}
             />
             <input type="submit" value="SAVE" />
+            <button onClick={handleShowEditForm}>Undo</button>
         </form>
     )
 }
 
-function mapDispatchToProps(dispatch) {
-    return {
-        editComm: (data, commentId) => dispatch(editComment(data, commentId)),
-        editUserPost: (data, postId) => dispatch(editPost(data, postId)),
-    }
+EditFeedForm.propTypes = {
+    feedId: PropTypes.string,
+    text: PropTypes.string,
+    editUserPostHandler: PropTypes.func,
+    handleShowEditForm: PropTypes.func,
 }
 
-export default connect(null, mapDispatchToProps)(EditFeedForm);
+export default EditFeedForm;

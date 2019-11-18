@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PostsSection from '../../PostComponents/PostsSection';
-import { followUser, unfollowUser, getUser } from '../../../store/fetcher/userFetcher';
+import { followUser, unfollowUser, getUser } from '../../../services/userFetcher';
 import Modal from '../../Modals/Modal';
 import { Redirect } from 'react-router-dom';
 import Loader from '../../Loader/Loader';
-import URI from '../../../config/config';
+import UserInfoContainer from '../../UserInfoComponents/UserInfoContainer';
+import PropTypes from 'prop-types';
+import {List, Map} from "immutable";
+
+import { likePost, dislikePost } from '../../../services/postFetcher';
+import { likeComment, dislikeComment, makeComment, deleteComment } from '../../../services/commentFetcher';
 
 class UserProfile extends Component {
     state = {
@@ -17,7 +22,7 @@ class UserProfile extends Component {
     handleShow = (e) => {
         e.persist();
 
-        this.setState((oldState) => ({ showModal: true, users: this.props.user[e.target.id], modalHeaderName: e.target.name }));
+        this.setState((oldState) => ({ showModal: true, users: this.props.user.get(e.target.id).toJS(), modalHeaderName: e.target.name }));
     }
 
     handleClose = (e) => {
@@ -27,41 +32,39 @@ class UserProfile extends Component {
     }
 
     render() {
-        const { user } = this.props;
+        const { user, foundUserPosts } = this.props;
 
-        if (Object.entries(user).length === 0) {
+        if (user.size === 0) {
             return <Loader />
         }
 
-        const isFollowed = user.followers.findIndex(u => u._id === localStorage.getItem('userId')) >= 0;
+        const isFollowed = user.get('followers').findIndex(u => u.get('_id') === localStorage.getItem('userId')) >= 0;
 
-        if (user.id === localStorage.getItem('userId')) {
-            return <Redirect to="/me" />
+        if (user.get('id') === localStorage.getItem('userId')) {
+            return <Redirect to="/MyProfile" />
         }
 
         return (
             <main>
-                <div className="userInfoHeader">
-                    <a href="./myprofile.html">
-                        <figure className="profilePic">
-                            <img src={`${URI}/feed/image/${user.imageId}`} alt="userImg" />
-                            <figcaption>{user.username}</figcaption>
-                        </figure>
-                    </a>
-                    <div className="headerInfoContainer">
-                        <div className="userMeta">
-                            <span>{user.posts.length} posts</span>
-                            <span><button name="Followers" id="followers" onClick={this.handleShow}>{user.followers.length} followers</button></span>
-                            <span><button name="Subscriptions" id="subscriptions" onClick={this.handleShow}>{user.subscriptions.length} following</button></span>
-                        </div>
-                        {
-                            isFollowed
-                                ? <button onClick={() => this.props.unfollow(user.id)} className="followBtn">UNFOLLOW</button>
-                                : <button onClick={() => this.props.follow(user.id)} className="followBtn">FOLLOW</button>
-                        }
-                    </div>
-                </div>
-                <PostsSection posts={user.posts} />
+                <UserInfoContainer
+                    user={{ ...user.toJS(), _id: user.get('id') || user.get('_id') }}
+                    modalShowHandler={this.handleShow}
+                    unfollowHandler={this.props.unfollow}
+                    followHandler={this.props.follow}
+                    isFollowed={isFollowed}
+                />
+
+                <PostsSection
+                    posts={foundUserPosts.toJS()}
+                    likePostHandler={this.props.like}
+                    dislikePostHandler={this.props.dislike}
+                    editUserPostHandler={this.props.editUserPost}
+                    likeCommentHandler={this.props.likeCom}
+                    dislikeCommentHandler={this.props.dislikeCom}
+                    currUser={this.props.currUser.toJS()}
+                    makeCommentHandler={this.props.makeCom}
+                    deleteCommentHandler={this.props.deleteCom}
+                />
 
                 {/* Modal for followers or following users */}
                 {
@@ -72,7 +75,7 @@ class UserProfile extends Component {
     }
 
     //when url change, make sure that component will fetch new user data and will re-render
-    async componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps) {
         if (prevProps.match.params.userId !== this.props.match.params.userId) {
             this.props.getUserInfo(this.props.match.params.userId)
         }
@@ -85,7 +88,9 @@ class UserProfile extends Component {
 
 function mapStateToProps(state) {
     return {
-        user: state.user,
+        user: state.usersReducer.get('foundUser'),
+        foundUserPosts: state.postsReducer.get('posts').filter(post => post.getIn(['creator', '_id']) === state.usersReducer.getIn(['foundUser', 'id'])),
+        currUser: state.systemReducer.get('curUser')
     }
 }
 
@@ -93,8 +98,33 @@ function mapDispatchToProps(dispatch) {
     return {
         follow: (userId) => dispatch(followUser(userId)),
         unfollow: (userId) => dispatch(unfollowUser(userId)),
-        getUserInfo: (userId) => dispatch(getUser(userId))
+        getUserInfo: (userId) => dispatch(getUser(userId)),
+        like: (postId) => dispatch(likePost(postId)),
+        dislike: (postId) => dispatch(dislikePost(postId)),
+        likeCom: (_id) => dispatch(likeComment(_id)),
+        dislikeCom: (_id) => dispatch(dislikeComment(_id)),
+        deleteCom: (_id) => dispatch(deleteComment(_id)),
+        makeCom: (data) => dispatch(makeComment(data))
     }
+}
+
+UserProfile.propTypes = {
+    user: PropTypes.instanceOf(Map),
+    foundUserPosts: PropTypes.instanceOf(List),
+    currUser: PropTypes.instanceOf(Map),
+    fetchStatus: PropTypes.number,
+    unfollow: PropTypes.func,
+    follow: PropTypes.func,
+    like: PropTypes.func,
+    search: PropTypes.func,
+    getUserInfo: PropTypes.func,
+    dislike: PropTypes.func,
+    editUserPost: PropTypes.func,
+    delPost: PropTypes.func,
+    likeCom: PropTypes.func,
+    dislikeCom: PropTypes.func,
+    makeCom: PropTypes.func,
+    deleteCom: PropTypes.func,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserProfile);

@@ -8,6 +8,7 @@ const { defaultUserImage } = require('../config/config')[env];
 const userSchema = new Schema({
     username: { type: Schema.Types.String, required: true },
     email: { type: Schema.Types.String, required: true },
+    notifications: [{ type: Schema.Types.ObjectId, ref: 'Notification'}],
     firstName: { type: Schema.Types.String, required: true },
     lastName: { type: Schema.Types.String, required: true },
     imageId: { type: Schema.Types.ObjectId, default: new mongoose.mongo.ObjectID(defaultUserImage) },

@@ -1,10 +1,9 @@
 import React from 'react';
 import useForms from '../../hooks/useForms';
-import { connect } from 'react-redux';
-import { makeComment } from '../../store/fetcher/commentFetcher';
 import { wrapComponent } from 'react-snackbar-alert';
+import PropTypes from 'prop-types';
 
-function CommentForm({ postId, commentPost, createSnackbar }) {
+function CommentForm({ postId, makeCommentHandler, createSnackbar }) {
     const { handleSubmit, handleChangeInput, inputs } = useForms((e) => {
 
         //check for empty text and send message to user
@@ -14,7 +13,7 @@ function CommentForm({ postId, commentPost, createSnackbar }) {
                 timeout: 3000,
             });
         } else {
-            commentPost({ ...inputs, postId })
+            makeCommentHandler({ ...inputs, postId })
         }
     });
 
@@ -32,10 +31,10 @@ function CommentForm({ postId, commentPost, createSnackbar }) {
     )
 }
 
-function mapDispatchToProps(dispatch) {
-    return {
-        commentPost: (data) => dispatch(makeComment(data))
-    }
+CommentForm.propTypes = {
+    postId: PropTypes.string,
+    makeCommentHandler: PropTypes.func,
+    createSnackbar: PropTypes.func
 }
 
-export default connect(null, mapDispatchToProps)(wrapComponent(CommentForm));
+export default wrapComponent(CommentForm);

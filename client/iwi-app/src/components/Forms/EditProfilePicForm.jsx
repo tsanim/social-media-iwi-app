@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { changeUserPic } from '../../store/fetcher/userFetcher'
-import { connect } from 'react-redux';
 import URI from '../../config/config';
 import { wrapComponent } from 'react-snackbar-alert';
+import PropTypes from 'prop-types';
 
 class EditForm extends Component {
     state = {
@@ -32,7 +31,7 @@ class EditForm extends Component {
     handleSubmit = (e) => {
         e.preventDefault();
 
-        this.props.changeProfilePic(this.state.fd);
+        this.props.changeProfilePicHandler(this.state.fd);
 
         this.props.createSnackbar({
             message: 'Profile picture is changed!',
@@ -44,7 +43,7 @@ class EditForm extends Component {
         return (
             <form className="editForm" encType="multipart/form-data" onSubmit={this.handleSubmit}>
                 <figure>
-                    <img className="profileImg" src={this.state.imagePreviewUrl || `${URI}/feed/image/${this.props.auth.imageId}`} alt="" />
+                    <img className="profileImg" src={this.state.imagePreviewUrl || `${URI}/feed/image/${this.props.imageId}`} alt="userPic" />
                     <div className="uploadImage">
                         <label htmlFor="file"><img className="icon" src="https://cdn.iconscout.com/icon/free/png-256/gallery-44-267592.png" alt="uploadImg" />Change
                       Profile Picture</label>
@@ -57,16 +56,10 @@ class EditForm extends Component {
     }
 }
 
-function mapStateToProps(state) {
-    return {
-        auth: state.auth
-    }
+EditForm.propTypes = {
+    imageId: PropTypes.string,
+    changeProfilePicHandler: PropTypes.func,
+    createSnackbar: PropTypes.func,
 }
 
-function mapDispatchToProps(dispatch) {
-    return {
-        changeProfilePic: (data) => dispatch(changeUserPic(data))
-    }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(wrapComponent(EditForm));
+export default wrapComponent(EditForm);

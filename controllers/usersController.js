@@ -25,6 +25,12 @@ module.exports = {
                 .populate('subscriptions')
                 .populate('posts')
                 .populate({
+                    path: 'notifications',
+                    populate: {
+                        path: 'sender',
+                    }
+                })
+                .populate({
                     path: 'posts',
                     populate: {
                         path: 'comments',
@@ -43,6 +49,7 @@ module.exports = {
                         }
                     }
                 })
+                .populate('notifications')
                 .populate({
                     path: 'posts',
                     populate: {
@@ -58,7 +65,8 @@ module.exports = {
                 subscriptions: user.subscriptions,
                 followers: user.followers,
                 imageId: user.imageId,
-                id: user._id
+                id: user._id,
+                notifications: user.notifications
             });
 
             res.status(200).json({ message: 'User is found!', user: userInfo })
@@ -108,7 +116,14 @@ module.exports = {
                         path: 'creator',
                     }
                 })
-                    .populate('followers')
+                .populate('notifications')
+                .populate({
+                    path: 'notifications',
+                    populate: {
+                        path: 'sender',
+                    }
+                })    
+                .populate('followers')
                     .populate('subscriptions')
                     .populate({
                         path: 'posts',
@@ -167,7 +182,15 @@ module.exports = {
                     populate: {
                         path: 'comments',
                     }
-                }).populate({
+                })
+                .populate('notifications')
+                .populate({
+                    path: 'notifications',
+                    populate: {
+                        path: 'sender',
+                    }
+                })
+                .populate({
                     path: 'posts',
                     populate: {
                         path: 'creator',
@@ -247,6 +270,13 @@ module.exports = {
                 })
                 .populate('followers')
                 .populate('subscriptions')
+                .populate('notifications')
+                .populate({
+                    path: 'notifications',
+                    populate: {
+                        path: 'sender',
+                    }
+                })
                 .populate({
                     path: 'posts',
                     populate: {
@@ -277,6 +307,13 @@ module.exports = {
                     }
                 })
                 .populate('followers')
+                .populate('notifications')
+                .populate({
+                    path: 'notifications',
+                    populate: {
+                        path: 'sender',
+                    }
+                })
                 .populate('subscriptions')
                 .populate({
                     path: 'posts',
@@ -338,6 +375,13 @@ module.exports = {
                         }
                     }
                 })
+                .populate('notifications')
+                .populate({
+                    path: 'notifications',
+                    populate: {
+                        path: 'sender',
+                    }
+                })
                 .populate('followers')
                 .populate('subscriptions')
                 .populate({
@@ -368,8 +412,16 @@ module.exports = {
                         }
                     }
                 })
+                .populate('notifications')
+                .populate({
+                    path: 'notifications',
+                    populate: {
+                        path: 'sender',
+                    }
+                })
                 .populate('followers')
                 .populate('subscriptions')
+                .populate('notifications')
                 .populate({
                     path: 'posts',
                     populate: {
@@ -474,7 +526,9 @@ module.exports = {
                 populate: {
                     path: 'creator',
                 }
-            }).populate({
+            })
+            .populate('notifications')
+            .populate({
                 path: 'posts',
                 populate: {
                     path: 'comments',
@@ -484,6 +538,12 @@ module.exports = {
                 }
             })
                 .populate('followers')
+                .populate({
+                    path: 'notifications',
+                    populate: {
+                        path: 'sender',
+                    }
+                })
                 .populate('subscriptions')
                 .populate({
                     path: 'posts',

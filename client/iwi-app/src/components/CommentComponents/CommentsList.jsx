@@ -1,8 +1,9 @@
 import React from 'react';
 import Comment from './Comment';
 import CommentForm from '../Forms/CommentForm';
+import PropTypes from 'prop-types';
 
-function CommentsSection({ comments, postId }) {
+function CommentsSection({ comments, currUser, postId, likeCommentHandler, dislikeCommentHandler, deleteCommentHandler, makeCommentHandler }) {
     return (
         <section className="comments">
             <h3>Comments</h3>
@@ -11,21 +12,33 @@ function CommentsSection({ comments, postId }) {
                     comments.length > 0
                         ? comments.map(c => (<li key={c._id}>
                             <Comment
-                                creatorName={c.creator.username}
-                                creatorImg={c.creator.imageId}
-                                userId={c.creator._id}
-                                text={c.text}
-                                date={c.date}
-                                likes={c.likes}
-                                commentId={c._id}
+                                comment={c}
+                                currUser={currUser}
+                                likeCommentHandler={likeCommentHandler}
+                                dislikeCommentHandler={dislikeCommentHandler}
+                                deleteCommentHandler={deleteCommentHandler}
                             />
                         </li>))
                         : null
                 }
             </ul>
-            <CommentForm postId={postId} />
+            <CommentForm 
+                postId={postId} 
+                makeCommentHandler={makeCommentHandler}
+            />
         </section>
     )
 }
+
+CommentsSection.propTypes = {
+    comments: PropTypes.array,
+    postId: PropTypes.string,
+    currUser: PropTypes.object,
+    likeCommentHandler: PropTypes.func,
+    makeCommentHandler: PropTypes.func,
+    dislikeCommentHandler: PropTypes.func,
+    deleteCommentHandler: PropTypes.func
+}
+
 
 export default CommentsSection;

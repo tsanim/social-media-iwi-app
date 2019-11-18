@@ -1,73 +1,86 @@
-import React, { useEffect } from 'react';
+import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faKey } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
-import useForms from '../../hooks/useForms';
 import { connect } from 'react-redux';
-import { loginUser } from '../../store/fetcher/authFetcher';
+import { loginUser } from '../../services/authFetcher';
 import { wrapComponent } from 'react-snackbar-alert';
-import { resetErrors } from '../../store/errors/actionsCreator';
+import { resetErrors } from '../../store/actions/errorsActions/actionsCreator';
+import PropTypes from 'prop-types';
+import { List } from 'immutable';
 
-function LoginForm({ login, errors, createSnackbar, resetErr }) {
-    const { handleSubmit, handleChangeInput, inputs } = useForms((e) => {
+class LoginForm extends Component {
+    state = {
+        email: '',
+        password: '',
+    }
 
-        // if fields are less, send message to user that they are required
-        if (Object.values(inputs).length < 2) {
-            createSnackbar({
+    handleChangeInput = (e) => {
+        this.setState({ [e.target.name]: e.target.value })
+    }
+
+    handleSubmit = (e) => {
+        e.preventDefault();
+
+        if (this.state.email === '' || this.state.password === '') {
+            this.props.createSnackbar({
                 message: 'All fields are required!',
                 timeout: 3000,
             })
         } else {
-            login(inputs);
+            this.props.login({ email: this.state.email, password: this.state.password });
 
             //clear all errors 
-            resetErr();
+            this.props.resetErr();
         }
-    });
+    }
 
-    //clear all errors after component unmount, so the same errors not showing up on another component
-    useEffect(() => {
-        return () => {
-            resetErr();
-        }
-    }, [resetErr]);
+    render() {
+        const { errors } = this.props;
+        const { email, password } = this.state;
 
-    return (
-        <main>
-            <form id="loginForm" onSubmit={handleSubmit}>
-                <h1>SIGN IN</h1>
-                {
-                    (errors.length > 0 && (<p className="error">{errors[errors.length - 1].message}</p>))
-                }
-                <span>
-                    <FontAwesomeIcon icon={faEnvelope} />
-                    <input
-                        type="email"
-                        name="email"
-                        placeholder="Email..."
-                        id="email"
-                        value={inputs.email || ''}
-                        onChange={handleChangeInput}
-                    />
-                </span>
-                <span>
-                    <FontAwesomeIcon icon={faKey} />
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Password..."
-                        id="password"
-                        value={inputs.password || ''}
-                        onChange={handleChangeInput}
-                    />
-                </span>
-                <input type="submit" defaultValue="SIGN IN" />
-            </form>
-            <div className="message">
-                <span>You are not signed up yet?</span> <Link to="/signup">SIGN UP</Link>
-            </div>
-        </main>
-    )
+        return (
+            <main>
+                <form id="loginForm" onSubmit={this.handleSubmit}>
+                    <h1>SIGN IN</h1>
+                    {
+                        (errors.size > 0 && (<p className="error">{errors.getIn(['0', 'message'])}</p>))
+                    }
+                    <span>
+                        <FontAwesomeIcon icon={faEnvelope} />
+                        <input
+                            type="email"
+                            name="email"
+                            placeholder="Email..."
+                            id="email"
+                            value={email}
+                            onChange={this.handleChangeInput}
+                        />
+                    </span>
+                    <span>
+                        <FontAwesomeIcon icon={faKey} />
+                        <input
+                            type="password"
+                            name="password"
+                            placeholder="Password..."
+                            id="password"
+                            value={password}
+                            onChange={this.handleChangeInput}
+                        />
+                    </span>
+                    <input type="submit" defaultValue="SIGN IN" />
+                </form>
+                <div className="message">
+                    <span>You are not signed up yet?</span> <Link to="/signup">SIGN UP</Link>
+                </div>
+            </main>
+        )
+    }
+
+    //clear all errors after component unmount, so the same errors not showing up on another component        
+    componentWillUnmount() {
+        this.props.resetErr();
+    }
 }
 
 function mapDispatchToProps(dispatch) {
@@ -79,8 +92,16 @@ function mapDispatchToProps(dispatch) {
 
 function mapStateToProps(state) {
     return {
-        errors: state.errors
+        errors: state.errorsReducer
     }
 }
+
+LoginForm.propTypes = {
+    login: PropTypes.func,
+    resetErr: PropTypes.func,
+    createSnackbar: PropTypes.func,
+    errors: PropTypes.instanceOf(List),
+}
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(wrapComponent(LoginForm));

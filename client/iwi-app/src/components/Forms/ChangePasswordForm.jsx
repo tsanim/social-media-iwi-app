@@ -1,32 +1,34 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import useForms from '../../hooks/useForms';
-import { connect } from 'react-redux';
-import { changePassword } from '../../store/fetcher/userFetcher'
 import { wrapComponent } from 'react-snackbar-alert';
-import { resetErrors } from '../../store/errors/actionsCreator';
+import PropTypes from 'prop-types';
 
-function ChangePasswordForm({ changePass, createSnackbar, errors, resetErr }) {
+function ChangePasswordForm({ changePasswordHandler, createSnackbar, errors, resetErrorsHandler }) {
     const { handleSubmit, handleChangeInput, inputs } = useForms(() => {
-
-
-
         if (Object.values(inputs).length < 2) {
             createSnackbar({
                 message: 'All fields are required!',
                 timeout: 3000,
             });
         } else {
-            changePass(inputs);
-            
+            changePasswordHandler(inputs);
+
             createSnackbar({
                 message: 'Password is changed!',
                 timeout: 3000,
             });
 
             //clear all errors 
-            resetErr();
+            resetErrorsHandler();
         }
     });
+
+    //clear all errors after component unmount, so the same errors not showing up on another component
+    useEffect(() => {
+        return () => {
+            resetErrorsHandler();
+        }
+    }, [resetErrorsHandler]);
 
     return (
         <form className="editForm" onSubmit={handleSubmit}>
@@ -58,17 +60,12 @@ function ChangePasswordForm({ changePass, createSnackbar, errors, resetErr }) {
     )
 }
 
-function mapDispatchToProps(dispatch) {
-    return {
-        changePass: (data) => dispatch(changePassword(data)),
-        resetErr: () => dispatch(resetErrors)
-    }
+
+ChangePasswordForm.propTypes = {
+    changePasswordHandler: PropTypes.func,
+    createSnackbar: PropTypes.func,
+    errors: PropTypes.array,
+    resetErrorsHandler: PropTypes.func
 }
 
-function mapStateToProps(state) {
-    return {
-        errors: state.errors
-    }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(wrapComponent(ChangePasswordForm));
+export default wrapComponent(ChangePasswordForm);

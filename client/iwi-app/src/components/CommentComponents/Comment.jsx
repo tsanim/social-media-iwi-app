@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import calcTime from '../../utils/calcTime';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { likeComment, dislikeComment, deleteComment, editComment } from '../../store/fetcher/commentFetcher'
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import DeleteModal from '../Modals/DeleteModal';
 import URI from '../../config/config';
 import Modal from '../Modals/Modal';
+import UserDataLink from '../UserInfoComponents/UserDataLink';
+import httpRequest from '../../utils/httpRequest';
+import PropTypes from 'prop-types';
 
-function Comment({ creatorName, creatorImg, text, date, likes, commentId, likeCom, dislikeCom, userId, auth, deleteComm }) {
+function Comment({ comment, currUser, likeCommentHandler, dislikeCommentHandler, deleteCommentHandler }) {
+    const { creator, text, date, likes, _id } = comment;
+
     //hook for question modal about deleting
     const [showDeleteModal, setShowModal] = useState(false);
     //hook for showing likes people
@@ -24,9 +26,21 @@ function Comment({ creatorName, creatorImg, text, date, likes, commentId, likeCo
 
     //function for fetch comment likes
     const fetchLikes = async () => {
-        const res = await fetch(`${URI}/feed/comments/likes/${commentId}`);
-        const data = await res.json();
-        setLikers(data.likes);
+        const options = {
+            method: 'get',
+            url: `${URI}/feed/comments/likes/${_id}`,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            onSuccess: (data) => {
+                setLikers(() => data.likes);
+            }, 
+            onError: (error) => {
+                console.log(error);
+            }
+        }
+
+        httpRequest(options);
     }
 
     //when component did mound , fetched the likers of the comment for showing them in the modal
@@ -37,45 +51,35 @@ function Comment({ creatorName, creatorImg, text, date, likes, commentId, likeCo
     }, []);
 
     const handleLikeComment = (e) => {
-        e.persist();
-
         setlikesCount((likesCount) => likesCount + 1);
         setIsLiked((isLiked) => !isLiked);
-        likeCom(commentId);
+        likeCommentHandler(_id);
 
         //correct likers like add logged in user in likers array
-        setLikers((likers) => [...likers, auth]);
+        setLikers((likers) => [...likers, currUser]);
     }
 
     const handleDisLikeComment = (e) => {
-        e.persist();
-
         setlikesCount((likesCount) => likesCount - 1);
         setIsLiked((isLiked) => !isLiked);
-        dislikeCom(commentId);
+        dislikeCommentHandler(_id);
 
         //correct likers like remove logged in user from likers array
         setLikers((likers) => {
-            likers = likers.filter(l => l._id !== auth._id)
+            likers = likers.filter(l => l._id !== currUser._id)
             return likers;
         });
     }
 
     const handleShowModal = (e) => {
-        e.persist();
-
         setShowModal((showDeleteModal) => true);
     }
 
     const handleShowLikesModal = (e) => {
-        e.persist();
-
         setShowLikesPeopleModal((showLikesPeopleModal) => true);
     }
 
     const handleClose = (e) => {
-        e.persist();
-
         setShowModal((showDeleteModal) => false);
         setShowLikesPeopleModal((showLikesPeopleModal) => false);
 
@@ -84,10 +88,7 @@ function Comment({ creatorName, creatorImg, text, date, likes, commentId, likeCo
     return (
         <div className="comment">
             <figure className="commentData">
-                <Link to={"/profile/" + userId}>
-                    <img src={`${URI}/feed/image/${creatorImg}`} alt="" />
-                    <figcaption>{creatorName}</figcaption>
-                </Link>
+                <UserDataLink user={creator} />
             </figure>
             <div className="commentContainer">
                 {/* If edit form is shown , both comment's text and buttons are not shown */}
@@ -100,7 +101,7 @@ function Comment({ creatorName, creatorImg, text, date, likes, commentId, likeCo
                     }
 
                     {
-                        auth._id === userId
+                        currUser._id === creator._id
                             ? <button onClick={handleShowModal} ><FontAwesomeIcon icon={faTrash} /></button>
                             : null
                     }
@@ -115,8 +116,8 @@ function Comment({ creatorName, creatorImg, text, date, likes, commentId, likeCo
                 showDeleteModal
                     ? <DeleteModal
                         isPost={false}
-                        feedId={commentId}
-                        deleteFunc={deleteComm}
+                        feedId={_id}
+                        deleteFunc={deleteCommentHandler}
                         handleClose={handleClose} />
                     : null
             }
@@ -129,21 +130,12 @@ function Comment({ creatorName, creatorImg, text, date, likes, commentId, likeCo
     )
 }
 
-function mapDispatchToProps(dispatch) {
-    return {
-        likeCom: (commentId) => dispatch(likeComment(commentId)),
-        dislikeCom: (commentId) => dispatch(dislikeComment(commentId)),
-        editComm: (commentId) => dispatch(editComment(commentId)),
-        deleteComm: (commentId) => dispatch(deleteComment(commentId))
-    }
+Comment.propTypes = {
+    comment: PropTypes.object,
+    currUser: PropTypes.object,
+    likeCommentHandler: PropTypes.func,
+    dislikeCommentHandler: PropTypes.func,
+    deleteCommentHandler: PropTypes.func
 }
 
-function mapStateToProps(state) {
-    return {
-        auth: state.auth,
-        userPosts: state.userPosts,
-        posts: state.posts
-    }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Comment);
+export default Comment;

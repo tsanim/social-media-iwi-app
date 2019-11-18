@@ -20,9 +20,6 @@ module.exports = (req, res, next) => {
     let decodedToken;
 
     try {
-
-      console.log(process.env.API_KEY);
-
       //verify token from header so we can see if user is authenticated
       decodedToken = jwt.verify(token, jwtSecret);
     } catch(error) {

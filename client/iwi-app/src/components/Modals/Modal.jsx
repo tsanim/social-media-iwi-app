@@ -1,39 +1,40 @@
-import React, { Component } from 'react';
-import UserCard from '../App/Discover/UserCard';
+import React from 'react';
+import PropTypes from 'prop-types';
+import UserCard from '../DiscoverComponents/UserCard';
 
-class Modal extends Component {
-    render() {
-        const { users, modalHeaderName, handleClose } = this.props;
+function Modal(props) {
+    return (
+        <div onClick={props.handleClose} id="myModal" className="modal">
+            {/* Modal content */}
 
-        return (
-            <div onClick={handleClose} id="myModal" className="modal">
-                {/* Modal content */}
+            <div className="modal-content">
+                <span onClick={props.handleClose} className="close">&times;</span>
+                <div className="modal-header">
+                    <h2>{props.modalHeaderName}</h2>
+                </div>
 
-                <div className="modal-content">
-                    <span onClick={handleClose} className="close">&times;</span>
-                    <div className="modal-header">
-                        <h2>{modalHeaderName}</h2>
-                    </div>
-
-                    <ul>
-                        {
-                            users.length > 0 
-                            ? users.map(u => (<li key={u._id}>
+                <ul>
+                    {
+                        props.users.length > 0
+                            ? props.users.map(u => (<li key={u._id}>
                                 <UserCard
-                                    imageId={u.imageId}
-                                    username={u.username}
-                                    firstName={u.firstName}
-                                    lastName={u.lastName}
-                                    id={u._id}
+                                    user={u}
                                 />
                             </li>))
-                            : <li>No {modalHeaderName}</li>
-                        }
-                    </ul>
-                </div>
+                            : <li>No {props.modalHeaderName}</li>
+                    }
+                </ul>
             </div>
-        )
-    }
+        </div>
+    )
 }
+
+Modal.propTypes = {
+    handleClose: PropTypes.func,
+    modalHeaderName: PropTypes.string,
+    isPost: PropTypes.bool,
+    users: PropTypes.array,
+}
+
 
 export default Modal;

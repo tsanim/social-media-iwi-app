@@ -53,6 +53,28 @@ module.exports = {
             res.end();
         });
     },
+    searchPosts: async (req, res, next) => {
+        try {
+            let { searchText } = req.query;
+            let toLowerCaseSearchText = searchText.toLowerCase();
+
+            const posts = await Post.find({})
+                .populate('creator')
+                .populate({
+                    path: 'comments',
+                    populate: {
+                        path: 'creator',
+                    }
+                })
+                .populate('likes');
+
+            let filteredPosts = posts.filter(p => p.text.toLowerCase().startsWith(toLowerCaseSearchText) || p.text.toLowerCase().includes(toLowerCaseSearchText));
+
+            res.status(200).json({ message: 'Posts are found!', foundPosts: filteredPosts });
+        } catch (error) {
+            next(error);
+        }
+    },
     getAllUserPosts: async (req, res, next) => {
         try {
             //find user by req user id prop from decoded token
@@ -128,7 +150,7 @@ module.exports = {
 
                 //assign req body object with object that contain post creator to new post object
                 const newPost = Object.assign({}, reqBody, { creator: req.userId });
-                
+
                 //if there is no text or file - send message to user that he can not upload post with empty data
                 if (reqBody.text && reqBody.text === '' && !req.file) {
                     let error = new Error('You can not upload post with empty text or no image!')
@@ -343,6 +365,21 @@ module.exports = {
             next(error);
         }
     },
+    getPostLikes: async (req, res, next) => {
+        try {
+            const { postId } = req.params;
+
+            const post = await Post.findById(postId).populate('likes');
+
+            res.status(201).json({ message: 'Post likers fetched succesfully!', likes: post.likes });
+        } catch (error) {
+            if (!error.statuCode) {
+                error.statuCode = 500;
+            }
+
+            next(error);
+        }
+    },
     dislikePost: async (req, res, next) => {
         try {
             //get post id from req params
@@ -405,7 +442,7 @@ module.exports = {
             post.comments[indexOfLikedCom] = comment;
             comment.save();
             post.save();
-           
+
             res.status(200).json({ message: 'Comment liked!', post });
         } catch (error) {
             if (!error.statuCode) {
@@ -465,7 +502,7 @@ module.exports = {
 
             const comment = await Comment.findById(commentId).populate('likes');
 
-            res.status(201).json({ message: 'Comment fetched likers succesfully!', likes: comment.likes });
+            res.status(201).json({ message: 'Comment likers fetched succesfully!', likes: comment.likes });
         } catch (error) {
             if (!error.statuCode) {
                 error.statuCode = 500;

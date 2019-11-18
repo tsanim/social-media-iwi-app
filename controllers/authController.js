@@ -29,7 +29,7 @@ function validateUser(req, res) {
 
 module.exports = {
     signIn: (req, res, next) => {
-        
+
         //check if validate func return true or false for valid data
         if (validateUser(req, res)) {
             const { email, password } = req.body;
@@ -38,6 +38,13 @@ module.exports = {
             User.findOne({ email: email })
                 .populate('followers')
                 .populate('subscriptions')
+                .populate({
+                    path: 'notifications',
+                    populate: {
+                        path: 'sender',
+                    }
+                })
+                .populate('notifications')
                 .then(user => {
                     //if user is undefined or null then send message 
                     if (!user) {
@@ -77,7 +84,7 @@ module.exports = {
         }
     },
     signUp: (req, res, next) => {
-        
+
         //check if validate func return true or false for valid data
         if (validateUser(req, res)) {
             //init user info from req body
@@ -99,15 +106,15 @@ module.exports = {
                 hashedPassword,
                 roles: ['User']
             })
-            .then((user) => {
-                res.status(201).json({ message: 'User succesfully logged in!' });
-            }).catch(err => {
-                if (!err.statusCode) {
-                    err.statusCode = 500;
-                }
+                .then((user) => {
+                    res.status(201).json({ message: 'User succesfully logged in!' });
+                }).catch(err => {
+                    if (!err.statusCode) {
+                        err.statusCode = 500;
+                    }
 
-                next(err);
-            })
+                    next(err);
+                })
         }
     },
 

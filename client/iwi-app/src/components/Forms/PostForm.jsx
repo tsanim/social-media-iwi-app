@@ -1,7 +1,6 @@
 import React from 'react';
-import { uploadPost } from '../../store/fetcher/postFetcher'
-import { connect } from 'react-redux';
 import { wrapComponent } from 'react-snackbar-alert';
+import PropTypes from 'prop-types';
 
 class PostForm extends React.Component {
     state = {
@@ -55,7 +54,7 @@ class PostForm extends React.Component {
             });
         } else {
             this.state.fd.append('text', this.state.text);
-            this.props.upload(this.state.fd);
+            this.props.uploadHandler(this.state.fd)
         }
 
         //reset state
@@ -63,6 +62,7 @@ class PostForm extends React.Component {
     }
 
     handlePreviewImgClose = (e) => {
+        this.state.fd.delete('postImg');
         this.setState({ imagePreviewUrl: '' })
     }
 
@@ -117,10 +117,9 @@ function isImage(type) {
     }
 }
 
-function mapDispatchToProps(dispatch) {
-    return {
-        upload: (data) => dispatch(uploadPost(data))
-    }
+PostForm.propTypes = {
+    uploadHandler: PropTypes.func,
+    createSnackbar: PropTypes.func,
 }
 
-export default connect(null, mapDispatchToProps)(wrapComponent(PostForm));
+export default wrapComponent(PostForm);

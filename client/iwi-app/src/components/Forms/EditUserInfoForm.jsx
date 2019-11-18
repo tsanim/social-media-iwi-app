@@ -1,12 +1,11 @@
 import React from 'react';
-import { editUserInfo } from '../../store/fetcher/userFetcher'
-import { connect } from 'react-redux';
 import useForms from '../../hooks/useForms';
 import { wrapComponent } from 'react-snackbar-alert';
+import PropTypes from 'prop-types';
 
-function EditForm({ editInfo, createSnackbar }) {
+function EditForm({ editUserInfoHandler, createSnackbar }) {
     const { handleSubmit, handleChangeInput, inputs } = useForms((e) => {
-        editInfo(inputs);
+        editUserInfoHandler(inputs);
         createSnackbar({
             message: 'User info succesfully updated!',
             timeout: 3000,
@@ -50,10 +49,9 @@ function EditForm({ editInfo, createSnackbar }) {
     )
 }
 
-function mapDispatchToProps(dispatch) {
-    return {
-        editInfo: (data) => dispatch(editUserInfo(data))
-    }
+EditForm.propTypes = {
+    editUserInfoHandler: PropTypes.func,
+    createSnackbar: PropTypes.func,
 }
 
-export default connect(null, mapDispatchToProps)(wrapComponent(EditForm));
+export default wrapComponent(EditForm);

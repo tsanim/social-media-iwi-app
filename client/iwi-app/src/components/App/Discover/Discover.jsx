@@ -1,43 +1,35 @@
-import React from 'react';
-import FoundPeopleList from './FoundPeopleList';
-import useForms from '../../../hooks/useForms';
+import React, { Component } from 'react';
+import FoundPeopleList from '../../DiscoverComponents/FoundPeopleList';
 import { connect } from 'react-redux';
-import { searchUser } from '../../../store/fetcher/userFetcher';
-import Loader from '../../Loader/Loader';
+import { searchUser } from '../../../services/userFetcher';
+import SearchForm from '../../Forms/SearchForm';
+import PropTypes from 'prop-types';
+import { List } from 'immutable';
 
-function Discover({ search, fetchStatus }) {
-    const { handleSubmit, handleChangeInput, inputs } = useForms((e) => {
-        search(inputs);
-    })
+class Discover extends Component {
+    render() {
+        return (
+            <main>
+                <div>
+                    <div className="search">
+                        <h1>Discover more people</h1>
+                        <SearchForm searchHandler={this.props.search} />
+                    </div>
     
-    return (
-        <main>
-            <div>
-                <div className="search">
-                    <h1>Discover more people</h1>
-                    <form id="searchForm" onSubmit={handleSubmit}>
-                        <input 
-                            type="search" 
-                            placeholder="Search..." 
-                            name="searchText"
-                            value={inputs.searchText || ''}
-                            onChange={handleChangeInput}
-                        />
-                    </form>
+                    <FoundPeopleList
+                        foundUsers={this.props.foundUsers.toJS()}
+                        fetchStatus={this.props.fetchStatus}
+                    />
                 </div>
-                {
-                    fetchStatus > 0 
-                        ? <Loader />
-                        : <FoundPeopleList />
-                }
-            </div>
-        </main>
-    )
+            </main>
+        )
+    }
 }
 
 function mapStateToProps(state) {
     return {
-        fetchStatus: state.fetchStatus,
+        fetchStatus: state.systemReducer.get('fetchStatus'),
+        foundUsers: state.usersReducer.get('foundUsers')
     }
 }
 
@@ -46,5 +38,11 @@ function mapDispatchToProps(dispatch) {
         search: (data) => dispatch(searchUser(data))
     }
 }
+
+Discover.propTypes = {
+    foundUsers: PropTypes.instanceOf(List),
+    fetchStatus: PropTypes.number,
+    search: PropTypes.func,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Discover);
