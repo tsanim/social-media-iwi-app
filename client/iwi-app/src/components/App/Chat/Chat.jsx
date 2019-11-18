@@ -6,6 +6,7 @@ import queryString from 'query-string';
 import Room from '../../ChatComponents/Room';
 import { Map, List } from 'immutable';
 import PropTypes from 'prop-types';
+import OnlineUsers from '../../ChatComponents/OnlineUsers';
 
 const chatEndPoint = 'localhost:8888'
 const socket = io(chatEndPoint);
@@ -53,7 +54,6 @@ class Chat extends Component {
     }
 
     onFocusHandler = (e) => {
-        // socket.emit('seen')
         socket.emit('typing', { username: this.props.curUser.get('username'), room: this.state.room });
     }
 
@@ -90,30 +90,10 @@ class Chat extends Component {
                             : null
                     }
 
-                    <div className="onlineUsers">
-                        <ul>
-                            <h3>Online users</h3>
-                            {
-                                (this.state.onlineUsers && this.state.onlineUsers.length > 0)
-                                    ? this.state.onlineUsers.map(u => {
-                                        return (<li key={u._id}>
-                                            <button id={`${u._id}`} onClick={this.showRoomHandler}>
-                                                <div className="card">
-                                                    <figure>
-                                                        <img src={`${URI}/feed/image/${u.imageId}`} alt="userImg" />
-                                                        <div className="names">
-                                                            <figcaption>{u.username}</figcaption>
-                                                            <span className="fullname">{`${u.firstName} ${u.lastName}`}</span>
-                                                        </div>
-                                                    </figure>
-                                                </div>
-                                            </button>
-                                        </li>)
-                                    })
-                                    : null
-                            }
-                        </ul>
-                    </div>
+                    <OnlineUsers 
+                        onlineUsers={this.state.onlineUsers}
+                        showRoomHandler={this.showRoomHandler}
+                    />
                 </div>
             </main>
         )
