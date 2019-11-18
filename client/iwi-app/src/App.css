@@ -3,13 +3,6 @@
   padding: 0;
 }
 
-#wrapper {
-  font-family: Acme;
-  width: 900px;
-  margin: 0 auto;
-  border: 1px solid rgb(111, 111, 111);
-  border-radius: 10px
-}
 
 
 a {
@@ -27,6 +20,15 @@ button {
 li {
   list-style: none;
 }
+
+#wrapper {
+  font-family: Acme;
+  width: 900px;
+  margin: 0 auto;
+  border: 1px solid rgb(111, 111, 111);
+  border-radius: 10px
+}
+
 
 header,
 .logo,
@@ -52,10 +54,30 @@ header {
   font-size: 110%;
 }
 
+.status {
+  border-radius: 50%;
+  padding: 7px;
+}
+
+.online {
+  background: #40ff00;
+}
+
+.offline {
+  background: #ff0000;
+}
+
+.warning {
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  color: white;
+  text-align: center;
+}
+
 .logo {
   font-family: Baloo;
   justify-content: center;
-  width: 30%;
+  width: 25%;
 }
 
 .logo a {
@@ -63,7 +85,7 @@ header {
 }
 
 #main-nav {
-  width: 65%;
+  width: 70%;
 }
 
 #main-nav a {
@@ -293,11 +315,6 @@ button:focus {
   margin: 5px;
 }
 
-li {
-  padding: 10px;
-  border-radius: 10px;
-}
-
 .comment p {
   background: rgba(228, 228, 228, 0.5);
   border-radius: 10px;
@@ -371,7 +388,7 @@ li {
   font-size: 0.85em;
 }
 
-.profilePic {
+.profilePic>a {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -391,10 +408,11 @@ li {
 .userInfoHeader {
   margin: 80px;
   display: flex;
+  justify-content: center;
   border-bottom: 1px solid rgb(111, 111, 111);
 }
 
-.userInfoHeader a {
+.userInfoHeader>a {
   width: 30%;
 }
 
@@ -831,6 +849,144 @@ input[type="submit"]:hover:not([value="Comment"]) {
   cursor: pointer;
 }
 
+/*CHAT STYLES*/
+
+.onlineUsers {
+  position: absolute;
+  width: 30%;
+  right: 0;
+}
+
+.onlineUsers ul {
+  border-radius: 10px;
+}
+
+h1,
+h3 {
+  text-align: center;
+  padding: 20px;
+}
+
+.card {
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.card:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.chatStatus {
+  padding: 5px;
+  background: lightgreen;
+  border-radius: 50%;
+  position: relative;
+  top: 20px;
+}
+
+.typing, .msg {
+  padding: 10px;
+}
+
+.chat {
+  border-radius: 10px;
+  border: 1px solid rgb(111, 111, 111);
+  width: 55%;
+  float: left;
+  margin: 10px;
+  min-height: 600px;
+  position: relative;
+}
+
+.chatWrapper {
+  position: relative;
+}
+
+.chatHeader {
+  justify-content: center;
+  padding: 10px;
+}
+
+.messagesContainer {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+}
+
+.mine {
+  background: lightblue;
+  padding: 10px;
+  border-radius: 40px;
+}
+
+.chat-message {
+  min-width: 50%;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+}
+
+.column {
+  flex-direction: column;
+}
+
+.chat-message figure,
+.chatHeader figure {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.chat-message figure img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.chatHeader figure img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.clearfix:after {
+  visibility: hidden;
+  display: block;
+  font-size: 0;
+  content: " ";
+  clear: both;
+  height: 0;
+}
+
+.float-right {
+  float: right;
+}
+
+#messageForm {
+  display: flex;
+}
+
+.messageForm {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+}
+
+#messageForm input[value="Send"] {
+  width: 30%;
+  margin: 10px;
+  border-radius: 10px;
+  height: 20%;
+  align-self: flex-end;
+}
+
+.msg {
+  text-align: center;
+}
+
 @media (max-width: 600px) {
 
   #wrapper,
@@ -937,7 +1093,7 @@ input[type="submit"]:hover:not([value="Comment"]) {
     font-size: 12px;
   }
 
-  .userInfoHeader a figure img {
+  .userInfoHeader figure a img {
     width: 70px;
     height: 70px;
   }
