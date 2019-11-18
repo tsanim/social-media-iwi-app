@@ -1,20 +1,10 @@
 import React, { useEffect } from 'react';
 import Messages from './Messages';
+import MessageForm from '../Forms/MessageForm';
 import URI from '../../config/config';
 import PropTypes from 'prop-types';
 
 function Room(props) {
-    const { curUser, 
-        onlineUser, 
-        messages, 
-        infoMessage, 
-        typing, onInputChangeHandler, 
-        onKeyPressHandler, 
-        onFocusHandler, 
-        onBlurHandler, 
-        message, 
-        sendMessageHandler } = props
-
     useEffect(() => {
         return () => {
             props.onUnmountHandler();
@@ -25,34 +15,27 @@ function Room(props) {
         <div className="chat">
             <header className="chatHeader">
                 <figure>
-                    <img src={`${URI}/feed/image/${onlineUser.imageId}`} alt="userImg" />
+                    <img src={`${URI}/feed/image/${props.onlineUser.imageId}`} alt="userImg" />
                     <div className="names">
-                        <figcaption>{onlineUser.username}</figcaption>
+                        <figcaption>{props.onlineUser.username}</figcaption>
                     </div>
                 </figure>
             </header>
             <Messages
-                curUser={curUser}
-                onlineUser={onlineUser}
-                messages={messages}
-                infoMessage={infoMessage}
+                curUser={props.curUser}
+                onlineUser={props.onlineUser}
+                messages={props.messages}
+                infoMessage={props.infoMessage}
             />
-            <span className="typing">{typing}</span>
-            <div className="messageForm">
-                <form id="messageForm">
-                    <input
-                        type="text"
-                        placeholder="Type a message"
-                        name="message"
-                        value={message}
-                        onChange={onInputChangeHandler}
-                        onKeyPress={onKeyPressHandler}
-                        onFocus={onFocusHandler}
-                        onBlur={onBlurHandler}
-                    />
-                    <input type="button" onClick={sendMessageHandler} value="Send" />
-                </form>
-            </div>
+            <span className="typing">{props.typing}</span>
+            <MessageForm 
+                message={props.message}
+                onInputChangeHandler={props.onInputChangeHandler}
+                onBlurHandler={props.onBlurHandler}
+                onFocusHandler={props.onFocusHandler}
+                onKeyPressHandler={props.onKeyPressHandler}
+                sendMessageHandler={props.sendMessageHandler}
+            />
         </div>
     )
 }
@@ -67,7 +50,8 @@ Room.propTypes = {
     onFocusHandler: PropTypes.func,
     onBlurHandler: PropTypes.func,
     message: PropTypes.string,
-    sendMessageHandler: PropTypes.func
+    sendMessageHandler: PropTypes.func,
+    onUnmountHandler: PropTypes.func
 }
 
 
