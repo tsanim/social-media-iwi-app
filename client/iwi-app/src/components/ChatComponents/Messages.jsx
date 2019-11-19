@@ -12,16 +12,16 @@ function Messages(props) {
                 {
                     props.messages.map((m, i) => {
                         let liClass = i === 0 ? 'clearfix' : null;
-                        let isMine = m.user._id === localStorage.getItem('userId');
+                        let isMine = m.creator._id === localStorage.getItem('userId');
 
                         return (
                             isMine
                                 ? (<li key={i} className={liClass}>
                                     <div className="chat-message column float-right">
                                         <figure className="float-right">
-                                            <img src={`${URI}/feed/image/${m.user.imageId}`} alt="userImg" />
+                                            <img src={`${URI}/feed/image/${m.creator.imageId}`} alt="userImg" />
                                             <div className="names">
-                                                <figcaption>{m.user.username}</figcaption>
+                                                <figcaption>{m.creator.username}</figcaption>
                                             </div>
                                         </figure>
                                         <span className="mine">{ReactEmoji.emojify(m.text)}</span>
@@ -30,9 +30,9 @@ function Messages(props) {
                                 : (<li key={i}>
                                     <div className="chat-message column float-left">
                                         <figure>
-                                            <img src={`${URI}/feed/image/${m.user.imageId}`} alt="" />
+                                            <img src={`${URI}/feed/image/${m.creator.imageId}`} alt="" />
                                             <div className="names">
-                                                <figcaption>{m.user.username}</figcaption>
+                                                <figcaption>{m.creator.username}</figcaption>
                                             </div>
                                         </figure>
                                         <span>{ReactEmoji.emojify(m.text)}</span>

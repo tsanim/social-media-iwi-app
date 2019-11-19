@@ -52,10 +52,11 @@ const socketServer = http.createServer(express());
 const io = socketio(socketServer);
 const User = require('./models/User');
 const Notification = require('./models/Notification');
+const Message = require('./models/Message');
 
 const onlineUsers = [];
 const rooms = [];
-const messages = {}
+// const messages = {}
 
 io.on('connection', (socket) => {
     console.log('User is connected!');
@@ -88,7 +89,6 @@ io.on('connection', (socket) => {
 
         if (roomIndex === -1) {
             roomIndex += rooms.push(senderId + notificatedUserId);
-            messages[rooms[roomIndex]] = [];
         }
 
         if (!user.notifications.find(n => n.message.includes(sender.username))) {
@@ -103,14 +103,12 @@ io.on('connection', (socket) => {
         }
     });
 
-    socket.on('get messages', ({ curUserId, onlineUser }) => {
-        const room = rooms.find(room => (room === (curUserId + onlineUser)) || (room === (onlineUser + curUserId)));
+    socket.on('get messages', async ({ curUserId, onlineUser }) => {
+        let messages = await Message.find().populate('creator');
 
-        if (room) {
-            socket.emit('messages', { messages: messages[room] })
-        } else {
-            socket.emit('messages', { messages: [] });
-        }
+        messages = messages.filter(m => (m.room === (curUserId + onlineUser)) || (m.room === (onlineUser + curUserId)));
+
+        socket.emit('messages', { messages })
     })
 
     socket.on('join sender room', async ({ userId, senderId }) => {
@@ -161,11 +159,16 @@ io.on('connection', (socket) => {
     });
 
     socket.on('send message', async ({ room, text, userId }) => {
-        const user = await User.findById(userId);
+        let message = await Message
+            .create({
+                creator: userId,
+                room,
+                text
+            })
 
-        messages[room].push({ user, text });
+        message = await message.populate('creator').execPopulate()
 
-        io.to(room).emit('message', { message: { user, text } });
+        io.to(room).emit('message', { message });
     });
 
     socket.on('leave room', ({ room, username }) => {
