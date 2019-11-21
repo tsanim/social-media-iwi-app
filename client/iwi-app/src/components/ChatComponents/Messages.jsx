@@ -1,8 +1,7 @@
 import React from 'react';
-import URI from '../../config/config';
 import ScrollToBottom from 'react-scroll-to-bottom';
-import ReactEmoji from 'react-emoji';
 import PropTypes from 'prop-types';
+import Message from './Message';
 
 function Messages(props) {
     return (
@@ -15,29 +14,12 @@ function Messages(props) {
                         let isMine = m.creator._id === localStorage.getItem('userId');
 
                         return (
-                            isMine
-                                ? (<li key={i} className={liClass}>
-                                    <div className="chat-message column float-right">
-                                        <figure className="float-right">
-                                            <img src={`${URI}/feed/image/${m.creator.imageId}`} alt="userImg" />
-                                            <div className="names">
-                                                <figcaption>{m.creator.username}</figcaption>
-                                            </div>
-                                        </figure>
-                                        <span className="mine">{ReactEmoji.emojify(m.text)}</span>
-                                    </div>
-                                </li>)
-                                : (<li key={i}>
-                                    <div className="chat-message column float-left">
-                                        <figure>
-                                            <img src={`${URI}/feed/image/${m.creator.imageId}`} alt="" />
-                                            <div className="names">
-                                                <figcaption>{m.creator.username}</figcaption>
-                                            </div>
-                                        </figure>
-                                        <span>{ReactEmoji.emojify(m.text)}</span>
-                                    </div>
-                                </li>)
+                            (<li key={i} className={liClass}>
+                                <Message 
+                                    isMine={isMine}
+                                    message={m}
+                                />
+                            </li>)
                         )
                     })
                 }

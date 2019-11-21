@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import io from 'socket.io-client';
 import { connect } from 'react-redux';
-import URI from '../../../config/config';
 import queryString from 'query-string';
 import Room from '../../ChatComponents/Room';
-import { Map, List } from 'immutable';
+import { Map } from 'immutable';
 import PropTypes from 'prop-types';
 import OnlineUsers from '../../ChatComponents/OnlineUsers';
 
@@ -131,6 +130,8 @@ class Chat extends Component {
 
         socket.emit('join', { userId: localStorage.getItem('userId') });
 
+        socket.emit('get messages', { curUserId: this.props.curUser.get('id'), onlineUser: sender });
+
         socket.on('messages', ({ messages }) => {
             this.setState({ messages });
         });
@@ -191,9 +192,10 @@ class Chat extends Component {
     }
 
     componentWillUnmount() {
-        socket.emit('disconnect');
+        socket.emit('disconnect', { userId: localStorage.getItem('userId') });
         socket.off();
 
+        this.setState({ infoMessage: '' });
         clearInterval(this.timer);
     }
 }
