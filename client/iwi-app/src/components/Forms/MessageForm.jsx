@@ -8,11 +8,11 @@ function MessageForm(props) {
                 <input
                     type="text"
                     placeholder="Type a message"
-                    name="message"
-                    value={props.message}
+                    name="messageText"
+                    value={props.messageText}
                     onChange={props.onInputChangeHandler}
                     onKeyPress={props.onKeyPressHandler}
-                    onFocus={props.onFocusHandler}
+                    onKeyDown={props.onKeyDownHandler}
                     onBlur={props.onBlurHandler}
                 />
                 <input type="button" onClick={props.sendMessageHandler} value="Send" />

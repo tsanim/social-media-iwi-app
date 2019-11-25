@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './Dropdown.css';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
@@ -11,7 +10,7 @@ function Dropdown(props) {
             <button className="dropbtn"><FontAwesomeIcon icon={faBell} />{props.notifications.length}</button>
             <div className="dropdown-content">
                 {
-                    props.notifications.map(n => <Link key={n.room} to={`/chat?sender=${n.sender}`}> {n.message} </Link>)
+                    props.notifications.map(n => <Link key={n._id} to={`/chat?sender=${n.sender}`}> {n.message} </Link>)
                 }
             </div>
         </div>

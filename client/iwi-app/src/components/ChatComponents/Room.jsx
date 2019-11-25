@@ -27,12 +27,12 @@ function Room(props) {
                 messages={props.messages}
                 infoMessage={props.infoMessage}
             />
-            <span className="typing">{props.typing}</span>
+            <span className="typing">{props.typingMessage}</span>
             <MessageForm 
-                message={props.message}
+                messageText={props.messageText}
                 onInputChangeHandler={props.onInputChangeHandler}
                 onBlurHandler={props.onBlurHandler}
-                onFocusHandler={props.onFocusHandler}
+                onKeyDownHandler={props.onKeyDownHandler}
                 onKeyPressHandler={props.onKeyPressHandler}
                 sendMessageHandler={props.sendMessageHandler}
             />
@@ -47,7 +47,7 @@ Room.propTypes = {
     typing: PropTypes.string,
     onInputChangeHandler: PropTypes.func,
     onKeyPressHandler: PropTypes.func,
-    onFocusHandler: PropTypes.func,
+    onKeyDownHandler: PropTypes.func,
     onBlurHandler: PropTypes.func,
     message: PropTypes.string,
     sendMessageHandler: PropTypes.func,
