@@ -27,8 +27,8 @@ class Chat extends Component {
     showRoomHandler = async (e) => {
         const onlineUser = this.state.onlineUsers.find(u => u._id === e.currentTarget.id);
 
-        socket.emit('sendNotification', { senderId: localStorage.getItem('userId'), notificatedUserId: onlineUser._id });
         socket.emit('joinRoom', { userId: onlineUser._id, senderId: localStorage.getItem('userId') });
+        socket.emit('sendNotification', { senderId: localStorage.getItem('userId'), notificatedUserId: onlineUser._id });
 
         let stateMessages = await getRoomMessages(socket, localStorage.getItem('userId') , onlineUser._id);
 
