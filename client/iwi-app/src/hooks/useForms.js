@@ -6,6 +6,7 @@ function useForms(callback, isRegister) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
         callback();
 
         //check is register form or not , to know if it needs to reset inputs or not
@@ -16,6 +17,7 @@ function useForms(callback, isRegister) {
 
     const handleChangeInput = (e) => {
         e.persist();
+        
         setInputs(inputs => ({ ...inputs, [e.target.name]: e.target.value }));
     }
 

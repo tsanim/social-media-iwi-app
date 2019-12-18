@@ -7,6 +7,7 @@ import { Map } from 'immutable';
 import PropTypes from 'prop-types';
 import OnlineUsers from '../../ChatComponents/OnlineUsers';
 import { getRoomMessages, getOnlineUsers, joinSenderRoom } from '../../../services/chatService';
+import { wrapComponent } from 'react-snackbar-alert';
 
 const chatEndPoint = 'localhost:8888'
 const socket = io(chatEndPoint);
@@ -25,20 +26,30 @@ class Chat extends Component {
 
     showRoomHandler = async (e) => {
         const onlineUser = this.state.onlineUsers.find(u => u._id === e.currentTarget.id);
-        let stateMessages = await getRoomMessages(socket, this.props.curUser.get('id'), onlineUser._id);
 
         socket.emit('sendNotification', { senderId: localStorage.getItem('userId'), notificatedUserId: onlineUser._id });
         socket.emit('joinRoom', { userId: onlineUser._id, senderId: localStorage.getItem('userId') });
 
+        let stateMessages = await getRoomMessages(socket, localStorage.getItem('userId') , onlineUser._id);
+
         this.setState(oldState => ({
             onlineUser,
             isRoomShown: true,
-            messages: [...oldState.messages, ...stateMessages]
+            messages: [...stateMessages]
         }));
     }
 
     sendMessageHandler = (e) => {
         e.preventDefault();
+
+        if (this.state.messageText === '') {
+            this.props.createSnackbar({
+                message: 'Cannot send emtpy message!',
+                timeout: 3000
+            });
+
+            return;
+        }
 
         socket.emit('sendMessage', { text: this.state.messageText, roomId: this.state.roomId, userId: localStorage.getItem('userId') });
 
@@ -54,7 +65,7 @@ class Chat extends Component {
     }
 
     onKeyDownHandler = (e) => {
-        socket.emit('typing', { username: this.props.curUser.get('username'), roomId: this.state.roomId });
+        socket.emit('typing', { username: this.props.currentUser.get('username'), roomId: this.state.roomId });
     }
 
     onBlurHandler = (e) => {
@@ -62,7 +73,49 @@ class Chat extends Component {
     }
 
     onUnmountHandler = () => {
-        socket.emit('leaveRoom', { roomId: this.state.roomId, username: this.props.curUser.get('username') });
+        socket.emit('leaveRoom', { roomId: this.state.roomId, username: this.props.currentUser.get('username') });
+    }
+
+    socketIOConfig = () => {
+        socket.emit('join', { userId: localStorage.getItem('userId') });
+
+        socket.on('message', ({ message }) => {
+            this.setState((oldState) => {
+                return {
+                    messages: [...oldState.messages, message]
+                }
+            })
+        });
+
+        socket.on('onlineUsers', ({ onlineUsers }) => {
+            const currentUserSubs = this.props.currentUser.get('subscriptions').toJS();
+
+            this.setState({
+                onlineUsers: onlineUsers.filter(onlineUser => currentUserSubs.some((u) => {
+                    return u._id === onlineUser._id.toString()
+                }))
+            });
+        });
+
+        socket.on('typing', ({ username }) => {
+            setTimeout(() => {
+                this.setState({ typingMessage: `${username} is typing...` })
+            }, 500)
+        });
+
+        socket.on('stopTyping', (data) => {
+            setTimeout(() => {
+                this.setState({ typingMessage: '' })
+            }, 500)
+        });
+
+        socket.on('joinRoom', ({ user }) => {
+            this.setState({ roomId: user.roomId });
+        });
+
+        socket.on('infoMessage', ({ text }) => {
+            this.setState({ infoMessage: text });
+        });
     }
 
     render() {
@@ -74,7 +127,6 @@ class Chat extends Component {
                     {
                         this.state.isRoomShown
                             ? <Room
-                                curUser={this.props.curUser.toJS()}
                                 onlineUser={this.state.onlineUser}
                                 messages={this.state.messages}
                                 infoMessage={this.state.infoMessage}
@@ -119,45 +171,7 @@ class Chat extends Component {
     async componentDidMount() {
         const { sender } = queryString.parse(this.props.location.search);
 
-        socket.emit('join', { userId: localStorage.getItem('userId') });
-
-        socket.on('message', ({ message }) => {
-            this.setState((oldState) => {
-                return {
-                    messages: [...oldState.messages, message]
-                }
-            })
-        });
-
-        socket.on('onlineUsers', ({ onlineUsers }) => {
-            const curUserSubs = this.props.curUser.get('subscriptions').toJS();
-
-            this.setState({
-                onlineUsers: onlineUsers.filter(onlineUser => curUserSubs.some((u) => {
-                    return u._id === onlineUser._id.toString()
-                }))
-            });
-        });
-
-        socket.on('typing', ({ username }) => {
-            setTimeout(() => {
-                this.setState({ typingMessage: `${username} is typing...` })
-            }, 500)
-        });
-
-        socket.on('stopTyping', (data) => {
-            setTimeout(() => {
-                this.setState({ typingMessage: '' })
-            }, 500)
-        });
-
-        socket.on('joinRoom', ({ user }) => {
-            this.setState({ roomId: user.roomId });
-        });
-
-        socket.on('infoMessage', ({ text }) => {
-            this.setState({ infoMessage: text });
-        });
+        this.socketIOConfig();
 
         if (this.state.onlineUser._id) {
             let messages = await getRoomMessages(socket, localStorage.getItem('userId'), this.state.onlineUser._id);
@@ -181,10 +195,10 @@ class Chat extends Component {
 
         this.timer = setInterval(async () => {
             const onlineUsers = await getOnlineUsers(socket);
-            const curUserSubs = this.props.curUser.get('subscriptions').toJS();
+            const currentUserSubs = this.props.currentUser.get('subscriptions').toJS();
 
             this.setState({
-                onlineUsers: onlineUsers.filter(onlineUser => curUserSubs.some((u) => {
+                onlineUsers: onlineUsers.filter(onlineUser => currentUserSubs.some((u) => {
                     return u._id === onlineUser._id.toString()
                 }))
             });
@@ -200,16 +214,14 @@ class Chat extends Component {
     }
 }
 
-
-
 function mapStateToProps(state) {
     return {
-        curUser: state.systemReducer.get('curUser')
+        currentUser: state.systemReducer.get('currentUser')
     }
 }
 
 Chat.propTypes = {
-    curUser: PropTypes.instanceOf(Map),
+    currentUser: PropTypes.instanceOf(Map),
 }
 
-export default connect(mapStateToProps)(Chat);
+export default connect(mapStateToProps)(wrapComponent(Chat));

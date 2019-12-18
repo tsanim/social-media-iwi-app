@@ -3,73 +3,86 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faKey } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { loginUser } from '../../services/authFetcher';
+import { loginUser } from '../../services/authService';
 import { wrapComponent } from 'react-snackbar-alert';
 import { resetErrors } from '../../store/actions/errorsActions/actionsCreator';
 import PropTypes from 'prop-types';
 import { List } from 'immutable';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import getFieldStyles from '../../utils/getFieldStyles';
 
-class LoginForm extends Component {
-    state = {
+const initLoginState = {
+    form: {
         email: '',
         password: '',
     }
+}
 
-    handleChangeInput = (e) => {
-        this.setState({ [e.target.name]: e.target.value })
-    }
+const validationSchema = Yup.object().shape({
+    email: Yup.string()
+        .email('Invalid email')
+        .required('Required'),
+    password: Yup.string()
+        .min(8, 'Password must be at least 8 digits')
+        .required('Required'),
+});
 
-    handleSubmit = (e) => {
-        e.preventDefault();
+class LoginForm extends Component {
+    state = initLoginState;
 
-        if (this.state.email === '' || this.state.password === '') {
-            this.props.createSnackbar({
-                message: 'All fields are required!',
-                timeout: 3000,
-            })
-        } else {
-            this.props.login({ email: this.state.email, password: this.state.password });
+    handleSubmit = async (form) => {
+        await this.props.loginUser(form);
 
-            //clear all errors 
-            this.props.resetErr();
-        }
+        //clear all errors 
+        await this.props.resetErrors();
     }
 
     render() {
-        const { errors } = this.props;
-        const { email, password } = this.state;
-
         return (
             <main>
-                <form id="loginForm" onSubmit={this.handleSubmit}>
-                    <h1>SIGN IN</h1>
+                <Formik
+                    onSubmit={this.handleSubmit}
+                    initialValues={initLoginState.form}
+                    validationSchema={validationSchema}
+                >
                     {
-                        (errors.size > 0 && (<p className="error">{errors.getIn(['0', 'message'])}</p>))
+                        ({ errors }) => {
+                            return (
+                                <Form id="loginForm">
+                                    <h1>SIGN IN</h1>
+                                    {
+                                        (this.props.errors.size > 0 && (<p className="error">{this.props.errors.getIn(['0', 'message'])}</p>))
+                                    }
+                                    <span>
+                                        <FontAwesomeIcon icon={faEnvelope} />
+                                        <Field
+                                            type="email"
+                                            name="email"
+                                            placeholder="Email..."
+                                            id="email"
+                                            style={getFieldStyles(errors, 'email')}
+                                        />
+                                        <ErrorMessage className="error-message" name="email" component="div" />
+                                    </span>
+                                    <span>
+                                        <FontAwesomeIcon icon={faKey} />
+                                        <Field
+                                            type="password"
+                                            name="password"
+                                            placeholder="Password..."
+                                            id="password"
+                                            style={getFieldStyles(errors, 'password')}
+                                        />
+                                        <ErrorMessage className="error-message" name="password" component="div" />
+                                    </span>
+                                    <input type="submit" defaultValue="SIGN IN" />
+                                </Form>
+                            )
+                        }
                     }
-                    <span>
-                        <FontAwesomeIcon icon={faEnvelope} />
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder="Email..."
-                            id="email"
-                            value={email}
-                            onChange={this.handleChangeInput}
-                        />
-                    </span>
-                    <span>
-                        <FontAwesomeIcon icon={faKey} />
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="Password..."
-                            id="password"
-                            value={password}
-                            onChange={this.handleChangeInput}
-                        />
-                    </span>
-                    <input type="submit" defaultValue="SIGN IN" />
-                </form>
+                </Formik>
+
                 <div className="message">
                     <span>You are not signed up yet?</span> <Link to="/signup">SIGN UP</Link>
                 </div>
@@ -79,14 +92,14 @@ class LoginForm extends Component {
 
     //clear all errors after component unmount, so the same errors not showing up on another component        
     componentWillUnmount() {
-        this.props.resetErr();
+        this.props.resetErrors();
     }
 }
 
 function mapDispatchToProps(dispatch) {
     return {
-        login: (data) => dispatch(loginUser(data)),
-        resetErr: () => dispatch(resetErrors())
+        loginUser: (data) => dispatch(loginUser(data)),
+        resetErrors: () => dispatch(resetErrors())
     }
 }
 
@@ -97,7 +110,7 @@ function mapStateToProps(state) {
 }
 
 LoginForm.propTypes = {
-    login: PropTypes.func,
+    loginUser: PropTypes.func,
     resetErr: PropTypes.func,
     createSnackbar: PropTypes.func,
     errors: PropTypes.instanceOf(List),

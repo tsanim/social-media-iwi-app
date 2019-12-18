@@ -1,11 +1,14 @@
 import React from 'react';
 import { wrapComponent } from 'react-snackbar-alert';
 import PropTypes from 'prop-types';
+import isImage from '../../utils/isImage';
+import UploadedImagePreview from '../PostComponents/UploadedImagePreview';
 
-class PostForm extends React.Component {
+let fd = new FormData();
+
+export class PostForm extends React.Component {
     state = {
         text: '',
-        fd: new FormData(),
         imagePreviewUrl: '',
     }
 
@@ -22,47 +25,48 @@ class PostForm extends React.Component {
                 this.props.createSnackbar({
                     message: 'You should upload only images!',
                     timeout: 3000,
-                })
+                });
                 return;
             }
 
-            this.state.fd.append(e.target.name, file, e.target.name);
+            fd.append(e.target.name, file, e.target.name);
 
-            reader.onloadend = () => {
+            reader.onload = () => {
                 this.setState((oldState) => ({
                     imagePreviewUrl: reader.result,
                 }));
             }
 
-            reader.readAsDataURL(file)
+            reader.readAsDataURL(file);
         }
 
         this.setState({
             [e.target.name]: e.target.value,
-        })
+        });
     }
 
     handleSubmit = (e) => {
         e.preventDefault();
 
         //check for empty text and send message to user or emtpy file 
-        if (this.state.text === '' && !this.state.fd.get('postImg')) {
+        if (this.state.text === '' && !fd.get('postImg')) {
             //using createSnackbar for displaying warning message to user 
             this.props.createSnackbar({
                 message: 'You can not upload post without image or text!',
                 timeout: 3000,
             });
         } else {
-            this.state.fd.append('text', this.state.text);
-            this.props.uploadHandler(this.state.fd)
+            fd.append('text', this.state.text);
+            this.props.uploadHandler(fd)
         }
 
         //reset state
-        this.setState({ text: '', imagePreviewUrl: '', fd: new FormData() })
+        fd = new FormData();
+        this.setState({ text: '', imagePreviewUrl: '' });
     }
 
     handlePreviewImgClose = (e) => {
-        this.state.fd.delete('postImg');
+        fd.delete('postImg');
         this.setState({ imagePreviewUrl: '' })
     }
 
@@ -89,33 +93,20 @@ class PostForm extends React.Component {
                                 onChange={this.handleChangeInput}
                             />
                         </div>
-                        <input disabled={!(this.state.fd.keys() > 0 || (text !== '' || imagePreviewUrl !== ''))} type="submit" value="Post" />
+                        <input disabled={!(fd.keys() > 0 || (text !== '' || imagePreviewUrl !== ''))} type="submit" value="Post" />
                     </div>
                 </form>
 
-                <div className="uploadedImgPreview">
-                    {
-                        imagePreviewUrl !== '' ? <React.Fragment>
-                            <img id="previewImg" src={imagePreviewUrl} alt="uploadedImg" />
-                            <div onClick={this.handlePreviewImgClose} className="overlay"><span>x</span></div>
-                        </React.Fragment> : null
-                    }
-                </div>
+                <UploadedImagePreview
+                    imagePreviewUrl={imagePreviewUrl}
+                    handlePreviewImgClose={this.handlePreviewImgClose}
+                />
             </div>
         )
     }
 }
 
-//function about checking whether is image
-function isImage(type) {
-    switch (type) {
-        case 'image/jpeg':
-        case 'image/png':
-            return true;
-        default:
-            return false;
-    }
-}
+
 
 PostForm.propTypes = {
     uploadHandler: PropTypes.func,

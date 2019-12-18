@@ -4,8 +4,9 @@ import UserDataLink from './UserDataLink';
 import PropTypes from 'prop-types';
 
 function UserInfoContainer(props) {
-    const { _id, posts, followers, subscriptions } = props.user;
-
+    const { posts, followers, subscriptions } = props.user;
+    const userId = props.user._id ? props.user._id : props.user.id;
+    
     return (
         <div className="userInfoHeader">
             <figure className="profilePic">
@@ -19,12 +20,12 @@ function UserInfoContainer(props) {
                 </div>
 
                 {
-                    _id === localStorage.getItem('userId')
+                    userId === localStorage.getItem('userId')
                         ? <Link to="/edit" className="editBtn">EDIT PROFILE</Link>
                         : (
                             (props.isFollowed
-                                ? <button onClick={() => props.unfollowHandler(_id)} className="followBtn">UNFOLLOW</button>
-                                : <button onClick={() => props.followHandler(_id)} className="followBtn">FOLLOW</button>)
+                                ? <button onClick={() => props.unfollowHandler(userId)} className="followBtn">UNFOLLOW</button>
+                                : <button onClick={() => props.followHandler(userId)} className="followBtn">FOLLOW</button>)
                         )
                 }
             </div>

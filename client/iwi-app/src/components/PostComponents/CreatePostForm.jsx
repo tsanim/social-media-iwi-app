@@ -3,7 +3,7 @@ import PostForm from '../Forms/PostForm';
 import UserDataLink from '../UserInfoComponents/UserDataLink';
 import PropTypes from 'prop-types';
 
-function MakePostDiv({ user, uploadHandler }) {
+function CreatePostForm({ user, uploadHandler }) {
     return (
         <div id="makeAPost">
             <figure className="userInfo">
@@ -14,9 +14,9 @@ function MakePostDiv({ user, uploadHandler }) {
     )
 }
 
-MakePostDiv.propTypes = {
+CreatePostForm.propTypes = {
     user: PropTypes.object,
     uploadHandler: PropTypes.func,
 }
 
-export default MakePostDiv;
+export default CreatePostForm;

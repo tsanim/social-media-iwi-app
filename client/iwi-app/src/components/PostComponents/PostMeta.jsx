@@ -11,11 +11,11 @@ function PostMeta(props) {
             </div>
 
             {
-                props.showComments
+                props.areCommentsShown
                     ? <CommentsList
                         comments={props.comments}
                         postId={props.postId}
-                        currUser={props.currUser}
+                        currentUser={props.currentUser}
                         likeCommentHandler={props.likeCommentHandler}
                         dislikeCommentHandler={props.dislikeCommentHandler}
                         deleteCommentHandler={props.deleteCommentHandler}
@@ -34,9 +34,9 @@ PostMeta.propTypes = {
     likesCount: PropTypes.number,
     likesString: PropTypes.string,
     comments: PropTypes.array,
-    showComments: PropTypes.bool,
+    areCommentsShown: PropTypes.bool,
     postId: PropTypes.string,
-    currUser: PropTypes.object,
+    currentUser: PropTypes.object,
     likeCommentHandler: PropTypes.func,
     dislikeCommentHandler: PropTypes.func,
     deleteCommentHandler: PropTypes.func,

@@ -20,13 +20,14 @@ export function uploadPost(postData) {
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 
 export function getUserPosts(userId) {
     return (dispatch) => {
         dispatch(fetchStatusActions.beginFetch());
+        
         const optionsReq = {
             method: 'get',
             url: `${URI}/feed/posts/${userId}`,
@@ -39,7 +40,7 @@ export function getUserPosts(userId) {
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return  httpRequest(optionsReq, dispatch);
     }
 }
 
@@ -59,7 +60,7 @@ export function getAllSubsPosts() {
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 
@@ -78,7 +79,7 @@ export function searchPosts({ searchText }) {
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 
@@ -93,7 +94,7 @@ export function likePost(postId) {
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 
@@ -108,7 +109,7 @@ export function dislikePost(postId) {
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 
@@ -128,7 +129,7 @@ export function deletePost(postId) {
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 
@@ -149,6 +150,6 @@ export function editPost(postData, postId) {
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }

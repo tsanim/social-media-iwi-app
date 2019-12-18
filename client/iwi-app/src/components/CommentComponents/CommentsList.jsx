@@ -3,7 +3,7 @@ import Comment from './Comment';
 import CommentForm from '../Forms/CommentForm';
 import PropTypes from 'prop-types';
 
-function CommentsSection({ comments, currUser, postId, likeCommentHandler, dislikeCommentHandler, deleteCommentHandler, makeCommentHandler }) {
+function CommentsList({ comments, currentUser, postId, likeCommentHandler, dislikeCommentHandler, deleteCommentHandler, makeCommentHandler }) {
     return (
         <section className="comments">
             <h3>Comments</h3>
@@ -13,7 +13,7 @@ function CommentsSection({ comments, currUser, postId, likeCommentHandler, disli
                         ? comments.map(c => (<li key={c._id}>
                             <Comment
                                 comment={c}
-                                currUser={currUser}
+                                currentUser={currentUser}
                                 likeCommentHandler={likeCommentHandler}
                                 dislikeCommentHandler={dislikeCommentHandler}
                                 deleteCommentHandler={deleteCommentHandler}
@@ -30,10 +30,10 @@ function CommentsSection({ comments, currUser, postId, likeCommentHandler, disli
     )
 }
 
-CommentsSection.propTypes = {
+CommentsList.propTypes = {
     comments: PropTypes.array,
     postId: PropTypes.string,
-    currUser: PropTypes.object,
+    currentUser: PropTypes.object,
     likeCommentHandler: PropTypes.func,
     makeCommentHandler: PropTypes.func,
     dislikeCommentHandler: PropTypes.func,
@@ -41,4 +41,4 @@ CommentsSection.propTypes = {
 }
 
 
-export default CommentsSection;
+export default CommentsList;

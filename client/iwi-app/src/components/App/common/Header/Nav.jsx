@@ -11,11 +11,6 @@ import Dropdown from '../../../Dropdown/Dropdown';
 function Nav(props) {
     const { imageId } = props.user;
 
-    const handleSignOut = () => {
-        props.resetUserPostsHandler();
-        props.signoutHandler();
-    }
-
     return (
         <nav id="main-nav">
             <ul>
@@ -49,7 +44,7 @@ function Nav(props) {
                 />
                 </li>
                 <li><Link to="/chat"><FontAwesomeIcon icon={faUsers} /> CHAT</Link></li>
-                <li><Link to="/signin" onClick={handleSignOut}><FontAwesomeIcon icon={faSignOutAlt} /> LOGOUT</Link></li>
+                <li><Link to="/signin" onClick={props.signoutHandler}><FontAwesomeIcon icon={faSignOutAlt} /> LOGOUT</Link></li>
             </ul>
         </nav>
     )

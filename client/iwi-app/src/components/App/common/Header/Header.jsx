@@ -14,7 +14,6 @@ function Header(props) {
                 ? <Nav
                     user={props.user}
                     signoutHandler={props.signoutHandler}
-                    resetUserPostsHandler={props.resetUserPostsHandler}
                     switchToOffline={props.switchToOffline}
                     switchToOnline={props.switchToOnline}
                     notifications={props.notifications}

@@ -1,8 +1,8 @@
-const feedRouter = require('../routes/feed');
-const authRouter = require('../routes/auth');
-const usersRouter = require('../routes/user');
+import feedRouter from '../routes/feed';
+import authRouter from '../routes/auth';
+import usersRouter from '../routes/user';
 
-module.exports = app => {
+export default (app) => {
     //init routes
     app.use('/auth', authRouter);
     app.use('/feed', feedRouter);

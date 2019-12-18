@@ -1,39 +1,49 @@
 const env = process.env.NODE_ENV || 'development';
 
-const jwt = require('jsonwebtoken');
-const jwtSecret = require('../config/config')[env].JWT_SECRET;
+import jwt from 'jsonwebtoken';
+import config from '../config/config'
+const jwtSecret = config[env].JWT_SECRET;
 
-module.exports = (req, res, next) => {
-    //get request header for authorization
-    const authHeaders = req.get('Authorization');
+//init logger
+import logger from '../logger/logger'
 
-    //if there is no header return message 
-    if (!authHeaders) {
-      return res.status(401)
-        .json({ message: 'Not authenticated.' })
-    }
-  
-    //if there is header, then we have token from it
-    const token = req.get('Authorization').split(' ')[1];
+export default  (req, res, next) => {
+  //get request header for authorization
+  const authHeaders = req.get('Authorization');
 
-    //init decodedToken
-    let decodedToken;
+  //if there is no header return message 
+  if (!authHeaders) {
+    logger.log('info', `Not authenticated user!`);
 
-    try {
-      //verify token from header so we can see if user is authenticated
-      decodedToken = jwt.verify(token, jwtSecret);
-    } catch(error) {
-      return res.status(401)
-        .json({ message: 'Token is invalid.', error });
-    }
-  
-    //if verified token is undefined or null then we send message that user is not athenticated
-    if (!decodedToken) {
-      return res.status(401)
-        .json({ message: 'Not authenticated.' });
-    }
-  
-    //set user id to req from decoded token
-    req.userId = decodedToken.userId;
-    next();
+    return res.status(401)
+      .json({ message: 'Not authenticated.' })
   }
+
+  //if there is header, then we have token from it
+  const token = req.get('Authorization').split(' ')[1];
+
+  //init decodedToken
+  let decodedToken;
+
+  try {
+    //verify token from header so we can see if user is authenticated
+    decodedToken = jwt.verify(token, jwtSecret);
+  } catch (error) {
+    logger.log('error', `Token is invalid!`);
+
+    return res.status(401)
+      .json({ message: 'Token is invalid.', error });
+  }
+
+  //if verified token is undefined or null then we send message that user is not athenticated
+  if (!decodedToken) {
+    logger.log('info', `Not authenticated user!`);
+
+    return res.status(401)
+      .json({ message: 'Not authenticated.' });
+  }
+
+  //set user id to req from decoded token
+  req.userId = decodedToken.userId;
+  next();
+}

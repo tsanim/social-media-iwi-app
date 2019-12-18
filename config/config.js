@@ -1,4 +1,7 @@
-module.exports = {
+import dotenv from 'dotenv';
+dotenv.config();
+
+export default {
     development: {
         port: process.env.PORT || 9999,
         mongoUrl: process.env.DB_URI,

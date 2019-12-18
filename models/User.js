@@ -1,9 +1,11 @@
 const env = process.env.NODE_ENV || 'development';
 
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
+import encryption from '../utils/encryption';
+import config from '../config/config';
+
 const Schema = mongoose.Schema;
-const encryption = require('../utils/encryption');
-const { defaultUserImage } = require('../config/config')[env];
+const { defaultUserImage } = config[env];
 
 const userSchema = new Schema({
     username: { type: Schema.Types.String, required: true },
@@ -55,4 +57,4 @@ User.seedAdmin = async () => {
     }
 }
 
-module.exports = User;
+export default User;

@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import calcTime from '../../utils/calcTime';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faTrash } from '@fortawesome/free-solid-svg-icons';
 import DeleteModal from '../Modals/DeleteModal';
-import URI from '../../config/config';
 import Modal from '../Modals/Modal';
 import UserDataLink from '../UserInfoComponents/UserDataLink';
-import httpRequest from '../../utils/httpRequest';
 import PropTypes from 'prop-types';
+import CommentContainer from './CommentContainer';
+import CommentMeta from './CommentMeta';
+import { fetchCommentsLikes } from '../../services/commentsService';
 
-function Comment({ comment, currUser, likeCommentHandler, dislikeCommentHandler, deleteCommentHandler }) {
-    const { creator, text, date, likes, _id } = comment;
+function Comment({ comment, currentUser, likeCommentHandler, dislikeCommentHandler, deleteCommentHandler }) {
+    const { creator: commentCreator, text, date, likes, _id } = comment;
 
     //hook for question modal about deleting
     const [showDeleteModal, setShowModal] = useState(false);
@@ -24,29 +22,12 @@ function Comment({ comment, currUser, likeCommentHandler, dislikeCommentHandler,
     //hook for likers
     const [likers, setLikers] = useState([]);
 
-    //function for fetch comment likes
-    const fetchLikes = async () => {
-        const options = {
-            method: 'get',
-            url: `${URI}/feed/comments/likes/${_id}`,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            onSuccess: (data) => {
-                setLikers(() => data.likes);
-            }, 
-            onError: (error) => {
-                console.log(error);
-            }
-        }
-
-        httpRequest(options);
-    }
-
     //when component did mound , fetched the likers of the comment for showing them in the modal
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
-        fetchLikes();
+        fetchCommentsLikes(_id, (data) => {
+            setLikers(() => data.likes);
+        });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -56,7 +37,7 @@ function Comment({ comment, currUser, likeCommentHandler, dislikeCommentHandler,
         likeCommentHandler(_id);
 
         //correct likers like add logged in user in likers array
-        setLikers((likers) => [...likers, currUser]);
+        setLikers((likers) => [...likers, currentUser]);
     }
 
     const handleDisLikeComment = (e) => {
@@ -66,7 +47,7 @@ function Comment({ comment, currUser, likeCommentHandler, dislikeCommentHandler,
 
         //correct likers like remove logged in user from likers array
         setLikers((likers) => {
-            likers = likers.filter(l => l._id !== currUser._id)
+            likers = likers.filter(l => l._id !== currentUser._id)
             return likers;
         });
     }
@@ -88,29 +69,23 @@ function Comment({ comment, currUser, likeCommentHandler, dislikeCommentHandler,
     return (
         <div className="comment">
             <figure className="commentData">
-                <UserDataLink user={creator} />
+                <UserDataLink user={commentCreator} />
             </figure>
-            <div className="commentContainer">
-                {/* If edit form is shown , both comment's text and buttons are not shown */}
-                <p>{text} </p>
-                <div className="commentBtns">
-                    {
-                        isLiked
-                            ? <button onClick={handleDisLikeComment} className="liked"><FontAwesomeIcon icon={faHeart} /></button>
-                            : <button onClick={handleLikeComment}><FontAwesomeIcon icon={faHeart} /></button>
-                    }
+            <CommentContainer
+                text={text}
+                isLiked={isLiked}
+                handleDisLikeComment={handleDisLikeComment}
+                handleLikeComment={handleLikeComment}
+                handleShowModal={handleShowModal}
+                currentUser={currentUser}
+                commentCreator={commentCreator}
+            />
 
-                    {
-                        currUser._id === creator._id
-                            ? <button onClick={handleShowModal} ><FontAwesomeIcon icon={faTrash} /></button>
-                            : null
-                    }
-                </div>
-            </div>
-            <div className="meta">
-                <span className="date">{calcTime(date)}</span>
-                <span onClick={handleShowLikesModal} >{likesCount} likes</span>
-            </div>
+            <CommentMeta
+                date={date}
+                handleShowLikesModal={handleShowLikesModal}
+                likesCount={likesCount}
+            />
 
             {
                 showDeleteModal
@@ -132,7 +107,7 @@ function Comment({ comment, currUser, likeCommentHandler, dislikeCommentHandler,
 
 Comment.propTypes = {
     comment: PropTypes.object,
-    currUser: PropTypes.object,
+    currentUser: PropTypes.object,
     likeCommentHandler: PropTypes.func,
     dislikeCommentHandler: PropTypes.func,
     deleteCommentHandler: PropTypes.func

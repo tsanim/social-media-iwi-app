@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import FoundPeopleList from '../../DiscoverComponents/FoundPeopleList';
 import { connect } from 'react-redux';
-import { searchUser } from '../../../services/userFetcher';
+import { searchUser } from '../../../services/usersService';
 import SearchForm from '../../Forms/SearchForm';
 import PropTypes from 'prop-types';
 import { List } from 'immutable';

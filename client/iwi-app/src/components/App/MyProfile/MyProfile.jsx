@@ -7,8 +7,8 @@ import PostsSection from '../../PostComponents/PostsSection';
 import { Map, List } from 'immutable';
 import PropTypes from 'prop-types';
 
-import { getUserPosts, likePost, dislikePost, deletePost, uploadPost, editPost } from '../../../services/postFetcher'
-import { likeComment, dislikeComment, deleteComment, makeComment } from '../../../services/commentFetcher'
+import { getUserPosts, likePost, dislikePost, deletePost, uploadPost, editPost } from '../../../services/postsService'
+import { likeComment, dislikeComment, deleteComment, makeComment } from '../../../services/commentsService'
 
 class MyProfile extends Component {
     state = {
@@ -20,7 +20,7 @@ class MyProfile extends Component {
     handleShow = (e) => {
         e.persist();
 
-        this.setState((oldState) => ({ showModal: true, users: this.props.currUser.get(e.target.id).toJS(), modalHeaderName: e.target.name }));
+        this.setState((oldState) => ({ showModal: true, users: this.props.currentUser.get(e.target.id).toJS(), modalHeaderName: e.target.name }));
     }
 
     handleClose = (e) => {
@@ -45,11 +45,11 @@ class MyProfile extends Component {
         return (
             <main>
                 <UserInfoContainer
-                    user={{ ...this.props.currUser.toJS(), posts: this.props.userPosts.toJS() }}
+                    user={{ ...this.props.currentUser.toJS(), posts: this.props.userPosts.toJS() }}
                     modalShowHandler={this.handleShow}
                 />
                 <MakePostDiv
-                    user={this.props.currUser.toJS()}
+                    user={this.props.currentUser.toJS()}
                     uploadHandler={this.props.upload}
                 />
 
@@ -62,7 +62,7 @@ class MyProfile extends Component {
                     likeCommentHandler={this.props.likeCom}
                     dislikeCommentHandler={this.props.dislikeCom}
                     deleteCommentHandler={this.props.deleteCom}
-                    currUser={this.props.currUser.toJS()}
+                    currentUser={this.props.currentUser.toJS()}
                     makeCommentHandler={this.props.makeCom}
                     fetchStatus={this.props.fetchStatus}
                 />
@@ -79,7 +79,7 @@ class MyProfile extends Component {
 
 function mapStateToProps(state) {
     return {
-        currUser: state.systemReducer.get('curUser'),
+        currentUser: state.systemReducer.get('currentUser'),
         userPosts: state.postsReducer.get('posts').filter(post => post.getIn(['creator', '_id']) === localStorage.getItem('userId')),
         fetchStatus: state.systemReducer.get('fetchStatus'),
         connectionStatus: state.systemReducer.get('connectionStatus')

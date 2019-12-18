@@ -15,7 +15,7 @@ function PostsSection(props) {
                             return (<article key={p._id} className="post">
                                 <Post
                                     post={p}
-                                    currUser={props.currUser}
+                                    currentUser={props.currentUser}
                                     likePostHandler={props.likePostHandler}
                                     dislikePostHandler={props.dislikePostHandler}
                                     deletePostHandler={props.deletePostHandler}
@@ -37,7 +37,7 @@ function PostsSection(props) {
 
 Post.propTypes = {
     posts: PropTypes.array,
-    currUser: PropTypes.object,
+    currentUser: PropTypes.object,
     likePostHandler: PropTypes.func,
     dislikePostHandler: PropTypes.func,
     deletePostHandler: PropTypes.func,

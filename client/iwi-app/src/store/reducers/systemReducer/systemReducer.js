@@ -5,18 +5,19 @@ import * as fetchStatusTypes from '../../actions/fetchStatusActions/actionTypes'
 import { fromJS } from 'immutable';
 
 export const initState = fromJS({
-    curUser: {},
+    currentUser: {},
     connectionStatus: true,
     fetchStatus: 0,
 });
 
 export default function system(oldState = initState, action) {
     switch (action.type) {
-        case authActionTypes.REGISTER:
+        case authActionTypes.LOGIN_USER:
+        case authActionTypes.SET_CURRENT_USER:
         case authActionTypes.FOLLOW_USER:
         case authActionTypes.UNFOLLOW_USER:
-        case authActionTypes.EDIT:
-            return oldState.set('curUser', fromJS(action.data));
+        case authActionTypes.EDIT_USER_INFO:
+            return oldState.set('currentUser', fromJS(action.data));
         case authActionTypes.LOGOUT:
             localStorage.clear();
             return initState;

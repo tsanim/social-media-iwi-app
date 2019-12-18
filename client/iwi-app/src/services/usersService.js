@@ -19,11 +19,11 @@ export function searchUser({ searchText }) {
                 'Authorization': 'Api ' + localStorage.getItem('token')
             },
             onSuccess: (data) => {
-                dispatch(userActions.search(data.foundUsers));
+                dispatch(userActions.searchUser(data.foundUsers));
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 
@@ -40,11 +40,11 @@ export function getUser(userId) {
             },
             onSuccess: (data) => {
                 dispatch(userActions.getUserData(data.user));
-                dispatch(userPostsActions.getUserPosts(data.user.posts));
+                dispatch(userPostsActions.setUserPosts(data.user.posts));
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 
@@ -61,11 +61,11 @@ export function followUser(userId) {
             },
             onSuccess: (data) => {
                 dispatch(authActions.followUser(data.me));
-                dispatch(userActions.follow(data.user));
+                dispatch(userActions.followUser(data.user));
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 
@@ -81,12 +81,12 @@ export function unfollowUser(userId) {
                 'Authorization': 'Api ' + localStorage.getItem('token')
             },
             onSuccess: (data) => {
-                dispatch(authActions.followUser(data.me));
-                dispatch(userActions.follow(data.user));
+                dispatch(authActions.unfollowUser(data.me));
+                dispatch(userActions.unfollowUser(data.user));
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 
@@ -104,12 +104,12 @@ export function editUserInfo(userData) {
             },
             onSuccess: (data) => {
                 localStorage.setItem('username', data.user.username);
-                dispatch(authActions.editInfo(data.user));
+                dispatch(authActions.editUserInfo(data.user));
                 dispatch(userPostsActions.editUserInfo(data.user.posts));
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 
@@ -125,12 +125,12 @@ export function changeUserPic(userPic) {
                 'Authorization': 'Api ' + localStorage.getItem('token')
             },
             onSuccess: (data) => {
-                dispatch(authActions.editInfo(data.user));
+                dispatch(authActions.editUserInfo(data.user));
                 dispatch(userPostsActions.editUserInfo(data.user.posts));
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 
@@ -154,6 +154,6 @@ export function changePassword(passData) {
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }

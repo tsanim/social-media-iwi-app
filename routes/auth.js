@@ -1,8 +1,12 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const authController = require('../controllers/authController');
-const { check } = require('express-validator/check');
-const User = require('../models/User');
+import authController from '../controllers/authController';
+import { check } from 'express-validator/check';
+
+import User from '../models/User';
+
+//init logger
+import logger from '../logger/logger';
 
 //route for signup with validation from check frome express-validator
 router.post('/signup', [
@@ -12,6 +16,8 @@ router.post('/signup', [
         .custom((value) => {
             return User.findOne({ username: value }).then(userDoc => {
                 if (userDoc) {
+                    logger.log('warn', 'SignUpError: Username alredy exists!');
+
                     return Promise.reject('Username already exists!');
                 }
             })
@@ -22,6 +28,8 @@ router.post('/signup', [
         .custom((value) => {
             return User.findOne({ email: value }).then(userDoc => {
                 if (userDoc) {
+                    logger.log('warn', 'SignUpError: Email alredy exists!');
+                    
                     return Promise.reject('Email adress already exists!');
                 }
             })
@@ -48,4 +56,4 @@ router.post('/signin', [
 
 
 
-module.exports = router;
+export default  router;

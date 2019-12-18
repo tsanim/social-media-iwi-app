@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import UserCard from '../DiscoverComponents/UserCard';
+import { Link } from 'react-router-dom';
 
 function Modal(props) {
     return (
@@ -17,9 +18,11 @@ function Modal(props) {
                     {
                         props.users.length > 0
                             ? props.users.map(u => (<li key={u._id}>
-                                <UserCard
-                                    user={u}
-                                />
+                                <Link to={"/profile/" + u._id}>
+                                    <UserCard
+                                        user={u}
+                                    />
+                                </Link>
                             </li>))
                             : <li>No {props.modalHeaderName}</li>
                     }
@@ -32,7 +35,6 @@ function Modal(props) {
 Modal.propTypes = {
     handleClose: PropTypes.func,
     modalHeaderName: PropTypes.string,
-    isPost: PropTypes.bool,
     users: PropTypes.array,
 }
 

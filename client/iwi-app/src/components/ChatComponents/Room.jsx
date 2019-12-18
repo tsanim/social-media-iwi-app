@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import Messages from './Messages';
 import MessageForm from '../Forms/MessageForm';
-import URI from '../../config/config';
 import PropTypes from 'prop-types';
+import UserChatCard from './UserChatCard';
 
 function Room(props) {
     useEffect(() => {
@@ -14,15 +14,11 @@ function Room(props) {
     return (
         <div className="chat">
             <header className="chatHeader">
-                <figure>
-                    <img src={`${URI}/feed/image/${props.onlineUser.imageId}`} alt="userImg" />
-                    <div className="names">
-                        <figcaption>{props.onlineUser.username}</figcaption>
-                    </div>
-                </figure>
+                <UserChatCard 
+                    onlineUser={props.onlineUser}
+                />
             </header>
             <Messages
-                curUser={props.curUser}
                 onlineUser={props.onlineUser}
                 messages={props.messages}
                 infoMessage={props.infoMessage}

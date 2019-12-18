@@ -5,8 +5,8 @@ import PostsSection from '../../PostComponents/PostsSection';
 import { Map, List } from 'immutable';
 import PropTypes from 'prop-types';
 
-import { getUserPosts, getAllSubsPosts, uploadPost, editPost, likePost, dislikePost, deletePost } from '../../../services/postFetcher';
-import { likeComment, dislikeComment, deleteComment, makeComment } from '../../../services/commentFetcher'
+import { getUserPosts, getAllSubsPosts, uploadPost, editPost, likePost, dislikePost, deletePost } from '../../../services/postsService';
+import { likeComment, dislikeComment, deleteComment, makeComment } from '../../../services/commentsService'
 
 class Home extends Component {
     componentDidUpdate(prevProps) {
@@ -20,7 +20,7 @@ class Home extends Component {
         return (
             <main>
                 <MakePostDiv
-                    user={this.props.currUser.toJS()}
+                    user={this.props.currentUser.toJS()}
                     uploadHandler={this.props.upload}
                 />
                 <PostsSection
@@ -32,7 +32,7 @@ class Home extends Component {
                     likeCommentHandler={this.props.likeCom}
                     dislikeCommentHandler={this.props.dislikeCom}
                     deleteCommentHandler={this.props.deleteCom}
-                    currUser={this.props.currUser.toJS()}
+                    currentUser={this.props.currentUser.toJS()}
                     makeCommentHandler={this.props.makeCom}
                     fetchStatus={this.props.fetchStatus}
                 />
@@ -51,7 +51,7 @@ export function filterHomePosts(state) {
     return state.postsReducer.get('posts').filter((post) => {
         const currPostCreatorId = post.getIn(['creator', '_id']);
         const currentUserId = localStorage.getItem('userId');
-        const currentUserSubs = state.systemReducer.getIn(['curUser', 'subscriptions']);
+        const currentUserSubs = state.systemReducer.getIn(['currentUser', 'subscriptions']);
 
         return ((currPostCreatorId === currentUserId) || (currentUserSubs.some(sub => sub.get('_id') === currPostCreatorId)))
     })
@@ -59,7 +59,7 @@ export function filterHomePosts(state) {
 
 function mapStateToProps(state) {
     return {
-        currUser: state.systemReducer.get('curUser'),
+        currentUser: state.systemReducer.get('currentUser'),
         posts: filterHomePosts(state),
         fetchStatus: state.systemReducer.get('fetchStatus'),
         connectionStatus: state.systemReducer.get('connectionStatus'),
@@ -85,7 +85,7 @@ function mapDispatchToProps(dispatch) {
 
 Home.propTypes = {
     getSubsposts: PropTypes.instanceOf(List),
-    currUser: PropTypes.instanceOf(Map),
+    currentUser: PropTypes.instanceOf(Map),
     posts: PropTypes.instanceOf(List),
     getUserPosts: PropTypes.func,
   

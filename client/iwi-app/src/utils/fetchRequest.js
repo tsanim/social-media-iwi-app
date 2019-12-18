@@ -1,7 +1,7 @@
 async function fetchRequest(options, isOffline) {
     try {
         if (!isOffline) {
-            return options.onError({ message: 'Network error' });
+            return options.onError({ message: 'Network error1' });
         }
 
         // check data if it is FormData object to know if we need to send application/json or multipart/form-data
@@ -22,6 +22,7 @@ async function fetchRequest(options, isOffline) {
         if (options.onSuccess) options.onSuccess(data);
     } catch (error) {
         options.onError(error)
+
         console.log(error);
     }
 }

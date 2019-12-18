@@ -14,28 +14,29 @@ import LoginForm from './components/Forms/LoginForm';
 import RegisterForm from './components/Forms/RegisterForm';
 import Me from './components/App/MyProfile/MyProfile';
 import Chat from './components/App/Chat/Chat';
-import URI from './config/config';
 
 import { wrapComponent } from 'react-snackbar-alert';
 import { Offline } from "react-detect-offline";
 
-import { logout, registerUser } from './store/actions/authActions/actionsCreator';
+import { logout, loginUser } from './store/actions/authActions/actionsCreator';
+import { setCurrentUser } from './services/authService'
 import { resetPosts } from './store/actions/postsAtions/actionsCreator';
 import { online, offline } from './store/actions/connectionStatusActions/actionsCreator';
 import SearchPosts from './components/App/SearchPosts/SearchPosts';
-import httpRequest from './utils/httpRequest';
 
 class App extends Component {
   render() {
     return (
       <div id="wrapper">
         <Header
-          user={this.props.currUser.toJS()}
-          signoutHandler={this.props.signout}
-          resetUserPostsHandler={this.props.resetUserPosts}
+          user={this.props.currentUser.toJS()}
+          signoutHandler={() => {
+            this.props.signout();
+            this.props.resetUserPosts();
+          }}
           switchToOffline={this.props.switchToOffline}
           switchToOnline={this.props.switchToOnline}
-          notifications={this.props.currUser.get('notifications') ? this.props.currUser.get('notifications').toJS() : null}
+          notifications={this.props.currentUser.get('notifications') ? this.props.currentUser.get('notifications').toJS() : null}
         />
         <Offline>
           <p className="warning">No internet connection!</p>
@@ -73,9 +74,11 @@ class App extends Component {
       clearInterval(this.timer);
     }
 
-    this.timer = setInterval(() => {
-      getCurUserData(localStorage.getItem('userId'), this.props.registerUser);
-    }, 1000);
+    if (localStorage.getItem('userId')) {
+      this.timer = setInterval(() => {
+        this.props.setCurrentUser(localStorage.getItem('userId'));
+      }, 1000);
+    }
   }
 
   componentWillUnmount() {
@@ -83,25 +86,9 @@ class App extends Component {
   }
 }
 
-function getCurUserData(userId, registerUser) {
-  const optionsReq = {
-    method: 'get',
-    url: `${URI}/user/info/${userId}`,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Api ' + localStorage.getItem('token')
-    },
-    onSuccess: (data) => {
-      registerUser(data.user);
-    }
-  };
-
-  httpRequest(optionsReq);
-}
-
 function mapStateToProps(state) {
   return {
-    currUser: state.systemReducer.get('curUser'),
+    currentUser: state.systemReducer.get('currentUser'),
     errors: state.errors,
   }
 }
@@ -112,7 +99,8 @@ function mapDispatchToProps(dispatch) {
     resetUserPosts: () => dispatch(resetPosts()),
     switchToOnline: () => dispatch(online()),
     switchToOffline: () => dispatch(offline()),
-    registerUser: (user) => dispatch(registerUser(user))
+    loginUser: (user) => dispatch(loginUser(user)),
+    setCurrentUser: (userId) => dispatch(setCurrentUser(userId))
   }
 }
 

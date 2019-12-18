@@ -10,14 +10,15 @@ import PostMeta from './PostMeta';
 import httpRequest from '../../utils/httpRequest';
 import PropTypes from 'prop-types';
 
-function Post({ post, currUser, likePostHandler, dislikePostHandler, deletePostHandler, likeCommentHandler, dislikeCommentHandler, deleteCommentHandler, makeCommentHandler, editUserPostHandler }) {
+function Post({ post, currentUser, likePostHandler, dislikePostHandler, deletePostHandler, likeCommentHandler, dislikeCommentHandler, deleteCommentHandler, makeCommentHandler, editUserPostHandler }) {
     const { creator, _id, date, text, imageId, likes, comments } = post;
+
     //hook for question modal about deleting
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     //hook for showing edit form
     const [showForm, setShowForm] = useState(false);
     //hook for showing comments section and comment form
-    const [showComments, setShowComments] = useState(false);
+    const [areCommentsShown, setShowComments] = useState(false);
     //hook for showing likes people
     const [showLikesPeopleModal, setShowLikesPeopleModal] = useState(false);
     //hook for handle like post 
@@ -35,7 +36,7 @@ function Post({ post, currUser, likePostHandler, dislikePostHandler, deletePostH
     const handleLikePost = (e) => {
         setLikes((likesCount) => likesCount + 1);
         setIsLiked((isLiked) => !isLiked);
-        setLikers((likers) => [...likers, currUser]);
+        setLikers((likers) => [...likers, currentUser]);
         likePostHandler(_id);
     }
 
@@ -46,7 +47,7 @@ function Post({ post, currUser, likePostHandler, dislikePostHandler, deletePostH
 
         //correct likers like remove logged in user from likers array
         setLikers((likers) => {
-            likers = likers.filter(l => l._id !== currUser._id)
+            likers = likers.filter(l => l._id !== (currentUser._id ? currentUser._id : currentUser.id))
             return likers;
         });
     }
@@ -69,7 +70,7 @@ function Post({ post, currUser, likePostHandler, dislikePostHandler, deletePostH
     }
 
     const handleShowComments = (e) => {
-        setShowComments((showComments) => !showComments);
+        setShowComments((areCommentsShown) => !areCommentsShown);
     }
 
     const fetchLikes = async () => {
@@ -136,7 +137,7 @@ function Post({ post, currUser, likePostHandler, dislikePostHandler, deletePostH
             <PostBtnsBar
                 btnsDivClassName={btnsDivClassName}
                 isLiked={isLiked}
-                showComments={showComments}
+                areCommentsShown={areCommentsShown}
                 creatorId={creator._id}
                 handleDisLikePost={handleDisLikePost}
                 handleLikePost={handleLikePost}
@@ -151,9 +152,9 @@ function Post({ post, currUser, likePostHandler, dislikePostHandler, deletePostH
                 comments={comments}
                 likesCount={likesCount}
                 likesString={likesString}
-                showComments={showComments}
+                areCommentsShown={areCommentsShown}
                 postId={_id}
-                currUser={currUser}
+                currentUser={currentUser}
                 likeCommentHandler={likeCommentHandler}
                 dislikeCommentHandler={dislikeCommentHandler}
                 deleteCommentHandler={deleteCommentHandler}
@@ -175,7 +176,7 @@ function Post({ post, currUser, likePostHandler, dislikePostHandler, deletePostH
 
 Post.propTypes = {
     post: PropTypes.object,
-    currUser: PropTypes.object,
+    currentUser: PropTypes.object,
     likePostHandler: PropTypes.func,
     dislikePostHandler: PropTypes.func,
     deletePostHandler: PropTypes.func,

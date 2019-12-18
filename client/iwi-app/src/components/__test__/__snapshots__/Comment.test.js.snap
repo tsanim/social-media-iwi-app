@@ -14,6 +14,11 @@ Array [
     </figure>
     <CommentContainer
       commentCreator={Object {}}
+      currentUser={
+        Object {
+          "_id": "123",
+        }
+      }
       handleDisLikeComment={[Function]}
       handleLikeComment={[Function]}
       handleShowModal={[Function]}
@@ -23,7 +28,7 @@ Array [
     <CommentMeta
       date=""
       handleShowLikesModal={[Function]}
-      likesCount={0}
+      likesCount={1}
     />
   </div>,
 ]

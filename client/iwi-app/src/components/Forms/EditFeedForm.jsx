@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 function EditFeedForm({ feedId, text, editUserPostHandler, handleShowEditForm }) {
     const { handleSubmit, handleChangeInput, inputs } = useForms((e) => {
         editUserPostHandler(inputs, feedId);
+        handleShowEditForm();
     });
 
     return (

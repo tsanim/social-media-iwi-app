@@ -5,8 +5,8 @@ import SearchForm from '../../Forms/SearchForm';
 import PropTypes from 'prop-types';
 import {List, Map} from "immutable";
 
-import { likePost, dislikePost, deletePost, searchPosts, editPost } from '../../../services/postFetcher'
-import { likeComment, dislikeComment, deleteComment, makeComment } from '../../../services/commentFetcher'
+import { likePost, dislikePost, deletePost, searchPosts, editPost } from '../../../services/postsService'
+import { likeComment, dislikeComment, deleteComment, makeComment } from '../../../services/commentsService'
 
 class SearchPosts extends Component {
     render() {
@@ -28,7 +28,7 @@ class SearchPosts extends Component {
                         likeCommentHandler={this.props.likeCom}
                         dislikeCommentHandler={this.props.dislikeCom}
                         deleteCommentHandler={this.props.deleteCom}
-                        currUser={this.props.currUser.toJS()}
+                        currentUser={this.props.currentUser.toJS()}
                         makeCommentHandler={this.props.makeCom}
                     />
                 </div>
@@ -40,7 +40,7 @@ class SearchPosts extends Component {
 function mapStateToProps(state) {
     return {
         fetchStatus: state.systemReducer.get('fetchStatus'),
-        currUser: state.systemReducer.get('curUser'),
+        currentUser: state.systemReducer.get('currentUser'),
         foundPosts: state.postsReducer.get('foundPosts')
     }
 }
@@ -62,7 +62,7 @@ function mapDispatchToProps(dispatch) {
 
 SearchPosts.propTypes = {
     foundPosts: PropTypes.instanceOf(List),
-    currUser: PropTypes.instanceOf(Map),
+    currentUser: PropTypes.instanceOf(Map),
     fetchStatus: PropTypes.number,
     like: PropTypes.func,
     search: PropTypes.func,

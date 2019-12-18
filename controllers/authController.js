@@ -1,13 +1,15 @@
 const env = process.env.NODE_ENV || 'development';
-const jwtSecret = require('../config/config')[env].JWT_SECRET;
+import config from '../config/config'
+const jwtSecret = config[env].JWT_SECRET;
 
-const User = require('../models/User');
+import User from '../models/User';
+import { validationResult } from 'express-validator/check';
+import jwt from 'jsonwebtoken'
 
-const { validationResult } = require('express-validator/check');
-const jwt = require('jsonwebtoken');
+import cleanUserObj from '../utils/cleanUserObj';
+import encryption from '../utils/encryption';
 
-const cleanUserObj = require('../utils/cleanUserObj');
-const encryption = require('../utils/encryption');
+import logger from '../logger/logger';
 
 //function for validate data from request
 function validateUser(req, res) {
@@ -16,6 +18,8 @@ function validateUser(req, res) {
 
     //if errrors array not empty, then return message to user for incorect data
     if (!errors.isEmpty()) {
+        logger.log('error', `Validation Error: Entered data is incorrect!`);
+
         res.status(422).json({
             message: 'Validation failed, entered data is incorrect',
             errors: errors.array()
@@ -27,12 +31,13 @@ function validateUser(req, res) {
     return true;
 }
 
-module.exports = {
+export default  {
     signIn: (req, res, next) => {
-
         //check if validate func return true or false for valid data
         if (validateUser(req, res)) {
             const { email, password } = req.body;
+
+            logger.log('debug', `Login body: email - ${email}`);
 
             //find user from req body email
             User.findOne({ email: email })
@@ -69,8 +74,10 @@ module.exports = {
                     },
                         jwtSecret);
 
+                    logger.log('info', `User (Id: ${user._id}, email: ${user.email}) is succesfully logged in!`);
+
                     res.status(200).json({
-                        message: 'User succesfully logged in!',
+                        message: 'User is succesfully logged in!',
                         user: cleanUserObj(user._doc),
                         token
                     });
@@ -90,6 +97,8 @@ module.exports = {
             //init user info from req body
             const { username, email, firstName, lastName, password } = req.body;
 
+            logger.log('debug', `Register body: username - ${username}, email - ${email}, firstName - ${firstName}, lastName - ${lastName}`);
+
             //generate salt 
             const salt = encryption.generateSalt();
 
@@ -107,6 +116,8 @@ module.exports = {
                 roles: ['User']
             })
                 .then((user) => {
+                    logger.log('info', `User (Id: ${user._id}, email: ${user.email}) is succesfully logged in!`);
+
                     res.status(201).json({ message: 'User succesfully logged in!' });
                 }).catch(err => {
                     if (!err.statusCode) {

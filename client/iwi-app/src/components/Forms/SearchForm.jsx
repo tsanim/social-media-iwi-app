@@ -1,6 +1,5 @@
 import React from 'react';
 import useForms from '../../hooks/useForms';
-import { wrapComponent } from 'react-snackbar-alert';
 import PropTypes from 'prop-types';
 
 function SearchForm({ searchHandler }) {
@@ -25,4 +24,4 @@ SearchForm.propTypes = {
     searchHandler: PropTypes.func,
 }
 
-export default wrapComponent(SearchForm);
+export default SearchForm;

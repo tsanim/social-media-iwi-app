@@ -1,10 +1,12 @@
-const express = require('express');
+import express from 'express';
+
 const router = express.Router();
-const feedControllers = require('../controllers/feedControllers');
-const storage = require('../config/gridFsStorage');
-const multer = require('multer');
+import feedControllers from '../controllers/feedControllers';
+import storage from '../config/gridFsStorage';
+import multer from 'multer';
 const upload = multer({ storage });
-const isAuth = require('../middlewares/isAuth');
+
+import isAuth from '../middlewares/isAuth';
 
 //get image from db route
 router.get('/image/:imageId', feedControllers.getImage);
@@ -13,7 +15,6 @@ router.get('/image/:imageId', feedControllers.getImage);
 router.get('/posts/:userId', isAuth, feedControllers.getAllUserPosts);
 router.get('/posts', isAuth, feedControllers.getAllUserSubsPosts);
 router.get('/searchPosts', isAuth,  feedControllers.searchPosts);
-router.get('/posts/:postId', isAuth,  feedControllers.getPostById);
 router.get('/posts/likes/:postId', feedControllers.getPostLikes);
 router.post('/posts/create', isAuth, upload.single('postImg'), feedControllers.createPost);
 router.put('/posts/like/:postId', isAuth, feedControllers.likePost);
@@ -26,7 +27,6 @@ router.post('/comments/create', isAuth, feedControllers.createComment);
 router.put('/comments/like/:commentId', isAuth, feedControllers.likeComment);
 router.put('/comments/dislike/:commentId', isAuth, feedControllers.dislikeComment);
 router.get('/comments/likes/:commentId', feedControllers.getCommentLikes);
-router.put('/comments/edit/:commentId', isAuth, feedControllers.editComment);
 router.delete('/comments/delete/:commentId', isAuth, feedControllers.deleteComment);
 
-module.exports = router;
+export default  router;

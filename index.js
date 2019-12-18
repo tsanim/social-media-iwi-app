@@ -1,38 +1,70 @@
 //init env 
-require('dotenv').config();
 const env = process.env.NODE_ENV || 'development';
 
-//init express, http, socketio
-const express = require('express');
-const http = require('http');
-const socketio = require('socket.io');
-
 //init config object
-const config = require('./config/config')[env];
+import generalConfig from './config/config';
 
-const favicon = require('express-favicon');
-const path = require('path');
+const config = generalConfig[env];
+
+//init winston
+import winston from 'winston';
+
+/**
+   * Requiring `winston-mongodb` will expose
+   * `winston.transports.MongoDB`
+*/
+import { mongoDB } from 'winston-mongodb'
+
+//init logger
+import logger from './logger/logger';
+
+logger.add(new winston.transports.MongoDB({
+    level: 'error',
+    db: config.mongoUrl,
+    collection: 'logs'
+}));
+
+if (env !== 'production') {
+    logger.add(new winston.transports.Console({
+        level: 'info'
+    }));
+}
+
+//init express, http, socketio
+import express from 'express';
+import http from 'http';
+import socketio from 'socket.io';
+
+import favicon from 'express-favicon';
+import path from 'path';
 
 //init db
-require('./config/database')(config);
+import db from './config/database';
+db(config, logger)
 
 //init app
 const app = express();
 
 //init express
-require('./config/express')(app);
+import initExpress from './config/express';
+initExpress(app)
 
 //init routes
-require('./config/routes')(app);
+import initRoutes from './config/routes';
+initRoutes(app)
 
 //init socketio
-require('./socketio/socketio')(express, socketio, http, config.socketPORT);
+import initSocketIo from './socketio/socketio';
+initSocketIo(express, socketio, http, config.socketPORT, logger);
 
 // General error handling
 app.use((error, req, res, next) => {
     const status = error.statusCode || 500;
     const message = error.message;
-    res.status(status).json({ message: message, error });
+
+    logger.log('error', `Error message: ${message}, Error status: ${status}`, ...error);
+
+    res.status(status).json({ message, error });
     next();
 })
 

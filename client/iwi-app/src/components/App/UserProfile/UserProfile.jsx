@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PostsSection from '../../PostComponents/PostsSection';
-import { followUser, unfollowUser, getUser } from '../../../services/userFetcher';
+import { followUser, unfollowUser, getUser } from '../../../services/usersService';
 import Modal from '../../Modals/Modal';
 import { Redirect } from 'react-router-dom';
 import Loader from '../../Loader/Loader';
@@ -9,8 +9,8 @@ import UserInfoContainer from '../../UserInfoComponents/UserInfoContainer';
 import PropTypes from 'prop-types';
 import {List, Map} from "immutable";
 
-import { likePost, dislikePost } from '../../../services/postFetcher';
-import { likeComment, dislikeComment, makeComment, deleteComment } from '../../../services/commentFetcher';
+import { likePost, dislikePost } from '../../../services/postsService';
+import { likeComment, dislikeComment, makeComment, deleteComment } from '../../../services/commentsService';
 
 class UserProfile extends Component {
     state = {
@@ -61,7 +61,7 @@ class UserProfile extends Component {
                     editUserPostHandler={this.props.editUserPost}
                     likeCommentHandler={this.props.likeCom}
                     dislikeCommentHandler={this.props.dislikeCom}
-                    currUser={this.props.currUser.toJS()}
+                    currentUser={this.props.currentUser.toJS()}
                     makeCommentHandler={this.props.makeCom}
                     deleteCommentHandler={this.props.deleteCom}
                 />
@@ -90,7 +90,7 @@ function mapStateToProps(state) {
     return {
         user: state.usersReducer.get('foundUser'),
         foundUserPosts: state.postsReducer.get('posts').filter(post => post.getIn(['creator', '_id']) === state.usersReducer.getIn(['foundUser', 'id'])),
-        currUser: state.systemReducer.get('curUser')
+        currentUser: state.systemReducer.get('currentUser')
     }
 }
 
@@ -111,7 +111,7 @@ function mapDispatchToProps(dispatch) {
 UserProfile.propTypes = {
     user: PropTypes.instanceOf(Map),
     foundUserPosts: PropTypes.instanceOf(List),
-    currUser: PropTypes.instanceOf(Map),
+    currentUser: PropTypes.instanceOf(Map),
     fetchStatus: PropTypes.number,
     unfollow: PropTypes.func,
     follow: PropTypes.func,

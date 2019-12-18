@@ -3,10 +3,11 @@ import URI from '../../config/config';
 import { wrapComponent } from 'react-snackbar-alert';
 import PropTypes from 'prop-types';
 
-class EditForm extends Component {
+const fd = new FormData();
+
+export class EditProfilePictureForm extends Component {
     state = {
         imagePreviewUrl: '',
-        fd: new FormData()
     }
 
     handleChangeInput = (e) => {
@@ -16,22 +17,22 @@ class EditForm extends Component {
             let reader = new FileReader();
             let file = e.target.files[0];
 
-            this.state.fd.append(e.target.name, file, e.target.name);
+            fd.append(e.target.name, file, e.target.name);
 
-            reader.onloadend = () => {
+            reader.onload = () => {
                 this.setState({
                     imagePreviewUrl: reader.result
                 });
             }
 
-            reader.readAsDataURL(file)
+            reader.readAsDataURL(file);
         }
     }
 
     handleSubmit = (e) => {
         e.preventDefault();
 
-        this.props.changeProfilePicHandler(this.state.fd);
+        this.props.changeProfilePicHandler(fd);
 
         this.props.createSnackbar({
             message: 'Profile picture is changed!',
@@ -56,10 +57,10 @@ class EditForm extends Component {
     }
 }
 
-EditForm.propTypes = {
+EditProfilePictureForm.propTypes = {
     imageId: PropTypes.string,
     changeProfilePicHandler: PropTypes.func,
     createSnackbar: PropTypes.func,
 }
 
-export default wrapComponent(EditForm);
+export default wrapComponent(EditProfilePictureForm);

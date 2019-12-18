@@ -1,7 +1,7 @@
 export const GET_USER_POSTS = "GET_USER_POSTS";
 export const MAKE_POST = "MAKE_USER_POST";
 export const EDIT_POST = "EDIT_USER_POST";
-export const EDIT_USER_INFO = "EDIT_USER_POST";
+export const EDIT_USER_INFO = "EDIT_USER";
 export const COMMENT_POST = "COMMENT_USER_POST";
 export const DELETE_COMMENT = "DELETE_USER_POST_COMMENT";
 export const RESET_POSTS = "RESET_USER_POSTS";

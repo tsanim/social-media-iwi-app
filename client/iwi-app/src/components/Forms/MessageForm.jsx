@@ -22,12 +22,13 @@ function MessageForm(props) {
 }
 
 MessageForm.propTypes = {
-    message: PropTypes.string,
+    messageText: PropTypes.string,
     onInputChangeHandler: PropTypes.func,
     onKeyPressHandler: PropTypes.func,
     onFocusHandler: PropTypes.func,
     onBlurHandler: PropTypes.func,
-    sendMessageHandler: PropTypes.func
+    sendMessageHandler: PropTypes.func,
+    onKeyDownHandler: PropTypes.func,
 }
 
 export default MessageForm;

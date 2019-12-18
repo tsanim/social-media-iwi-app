@@ -1,17 +1,15 @@
 import React from 'react';
-import URI from '../../config/config';
 import PropTypes from 'prop-types';
 import ReactEmoji from 'react-emoji';
+import UserChatCard from './UserChatCard';
 
 function Message(props) {
     return (
         <div className={`chat-message column ${props.isMine ? 'float-right' : null}`}>
-            <figure className={props.isMine ? "float-right" : null}>
-                <img src={`${URI}/feed/image/${props.message.creator.imageId}`} alt="userImg" />
-                <div className="names">
-                    <figcaption>{props.message.creator.username}</figcaption>
-                </div>
-            </figure>
+            <UserChatCard
+                onlineUser={props.message.creator}
+                isMine={props.isMine}
+            />
             <span className={props.isMine ? "mine" : null}>{ReactEmoji.emojify(props.message.text)}</span>
         </div>
     )

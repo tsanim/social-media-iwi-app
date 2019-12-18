@@ -2,10 +2,10 @@ import axios from 'axios';
 
 async function axiosRequest(options, isOffline) {
     try {
-        if (isOffline) {
+        if (!isOffline) {
             return options.onError({ message: 'Network error' });
         }
-
+        
         const res = await axios({
             method: options.method,
             url: options.url,
@@ -19,11 +19,12 @@ async function axiosRequest(options, isOffline) {
     } catch (error) {
         //if there is arrray with errors in data - return them like or then return single data error object
         if (error.response) {
+            console.log('options');
             options.onError(error.response.data.errors ? error.response.data.errors : error.response.data)
             console.log(error.response);
         }
 
-        console.log(error.message);
+        console.log(error.response);
     }
 }
 

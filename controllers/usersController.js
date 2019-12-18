@@ -1,20 +1,23 @@
 const env = process.env.NODE_ENV || 'development';
 
-const { validationResult } = require('express-validator/check');
+import { validationResult } from 'express-validator/check';
+import mongoose from 'mongoose';
 
-const mongoose = require('mongoose');
 const conn = mongoose.connection;
 
-const User = require('../models/User');
-const Post = require('../models/Post');
-const Comment = require('../models/Comment');
+//Models
+import Post from '../models/Post';
+import User from '../models/User';
+import Comment from '../models/Comment';
 
-const encryption = require('../utils/encryption');
+import encryption from '../utils/encryption';
 
 //get default image from config file(dedault image is id store in db)
-const { defaultUserImage } = require('../config/config')[env];
+import config from '../config/config'
+import logger from '../logger/logger';
+const { defaultUserImage } = config[env];
 
-module.exports = {
+export default  {
     getUserById: async (req, res, next) => {
         try {
             //get user id fromr req params
@@ -83,6 +86,9 @@ module.exports = {
         try {
             //get user id from req user id prop from decoded token
             const userId = req.userId;
+
+            logger.log('debug', 'Change profile picture from request userId: ' + userId);
+
             //find user by id
             const user = await User.findById(userId);
 
@@ -109,6 +115,8 @@ module.exports = {
                     delete user.hashedPassword;
                     delete user.salt;
 
+                    logger.log('info', 'Succesfully info updated!');
+                    
                     res.status(202).json({ message: 'Succesfully info updated!', user });
                 }).populate({
                     path: 'posts',
@@ -176,6 +184,8 @@ module.exports = {
                     delete user.hashedPassword;
                     delete user.salt;
 
+                    logger.log('info', 'Succesfully info updated!');
+
                     res.status(202).json({ message: 'Succesfully info updated!', user });
                 }).populate({
                     path: 'posts',
@@ -221,44 +231,12 @@ module.exports = {
             }
         }
     },
-    deleteUser: async (req, res, next) => {
-        try {
-            const { userId } = req.params;
-
-            await User.findByIdAndDelete(userId, (err, user) => {
-                if (err) {
-                    next(err);
-                }
-
-                if (!user) {
-                    const error = new Error('User can not be found!');
-                    error.statusCode = 500;
-
-                    next(error);
-                }
-
-                Post.deleteMany({ creator: user.id }, function (err) {
-                    if (err) {
-                        next(err);
-                    }
-                });
-
-                Comment.deleteMany({ creator: user.id }, function (err) {
-                    if (err) {
-                        next(err);
-                    }
-                });
-
-                res.status(200).json({ message: 'User deleted succesfully!' });
-            });
-        } catch (error) {
-            next(error);
-        }
-    },
     followUser: async (req, res, next) => {
         try {
             //get followed user id from req params
             const { followedUserId } = req.params;
+
+            logger.log('debug', `Follow user request params: followed user id - ${followedUserId}`);
 
             //find followed user by id
             const followedUser = await User.findById(followedUserId)
@@ -344,6 +322,8 @@ module.exports = {
             followedUser.save();
             user.save();
 
+            logger.log('info', `User is followed!`);
+
             res.status(200).json({ message: `User ${followedUser.username} is followed!`, user: followedUser, me: user });
         } catch (error) {
             next(error);
@@ -353,6 +333,8 @@ module.exports = {
         try {
             //get unfollowed user id
             const { unfollowedUserId } = req.params;
+            
+            logger.log('debug', `Unfollow user request params: unfollowed user id - ${unfollowedUserId}`);
 
             //find unfollowed user by id
             const unfollowedUser = await User.findById(unfollowedUserId)
@@ -437,6 +419,8 @@ module.exports = {
             unfollowedUser.save();
             user.save();
 
+            logger.log('info', `User is unfollowed!`);
+
             res.status(200).json({ message: `User ${unfollowedUser.username} is unfollowed!`, user: unfollowedUser, me: user });
         } catch (error) {
             next(error);
@@ -446,6 +430,8 @@ module.exports = {
         try {
             //get search text from query
             const { searchText } = req.query;
+
+            logger.log('debug', `Search users request query - search text: ${searchText}`);
 
             //find all users
             const users = await User.find({});
@@ -458,6 +444,8 @@ module.exports = {
                 u.roles = undefined;
             });
 
+            logger.log('info', 'Users are found');
+
             res.status(200).json({ foundUsers: filteredUsers });
         } catch (error) {
             next(error);
@@ -467,6 +455,9 @@ module.exports = {
         try {
             //get old pass and new pass 
             const { oldPassword, newPassword } = req.body;
+
+            logger.log('debug', `Change password request body`);
+
             //get user id from req user id
             const userId = req.userId;
 
@@ -514,6 +505,8 @@ module.exports = {
 
                 delete user.hashedPassword;
                 delete user.salt;
+
+                logger.log('info', 'Succesfully password changed!');
 
                 res.status(202).json({ message: 'Succesfully password changed!', user });
             }).populate({
@@ -565,6 +558,8 @@ module.exports = {
 function validateUser(req, res) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+        logger.log('error', 'Validation error. Entered data is incorrect')
+
         res.status(422).json({
             message: 'Validation failed, entered data is incorrect',
             errors: errors.array()

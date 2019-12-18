@@ -3,11 +3,11 @@ import useForms from '../../hooks/useForms';
 import { wrapComponent } from 'react-snackbar-alert';
 import PropTypes from 'prop-types';
 
-function CommentForm({ postId, makeCommentHandler, createSnackbar }) {
+export function CommentForm({ postId, makeCommentHandler, createSnackbar }) {
     const { handleSubmit, handleChangeInput, inputs } = useForms((e) => {
 
         //check for empty text and send message to user
-        if (inputs.text === '') {
+        if (inputs.text === '' || !inputs.text) {
             createSnackbar({
                 message: 'You can not make comment without text!',
                 timeout: 3000,

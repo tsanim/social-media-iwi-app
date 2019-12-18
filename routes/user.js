@@ -1,10 +1,14 @@
-const express = require('express');
+import express from 'express';
+
 const router = express.Router();
-const usersController = require('../controllers/usersController');
-const storage = require('../config/gridFsStorage');
-const multer = require('multer');
-const isAuth = require('../middlewares/isAuth');
-const { check } = require('express-validator/check');
+import usersController from '../controllers/usersController';
+
+import storage from '../config/gridFsStorage';
+import multer from 'multer';
+
+import isAuth from '../middlewares/isAuth';
+
+import { check } from 'express-validator/check';
 
 //init 'upload' to get uploaded file from client
 const upload = multer({ storage });
@@ -24,6 +28,5 @@ router.put('/changePassword', [
 ], isAuth, usersController.changePassword)
 router.put('/follow/:followedUserId', isAuth, usersController.followUser);
 router.put('/unfollow/:unfollowedUserId', isAuth, usersController.unfollowUser);
-router.delete('/delete/:userId', usersController.deleteUser);
 
-module.exports = router;
+export default  router;

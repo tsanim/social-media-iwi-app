@@ -14,7 +14,7 @@ export function searchPosts(data) {
     }
 }
 
-export function getUserPosts(data) {
+export function setUserPosts(data) {
     return {
         type: actionTypes.SET_USER_POSTS,
         data

@@ -1,22 +1,22 @@
 import * as actionTypes from './actionTypes';
 
-export function follow(data) {
+export function followUser(data) {
     return {
-        type: actionTypes.FOLLOW,
+        type: actionTypes.FOLLOW_USER,
         data
     }
 }
 
-export function search(data) {
+export function searchUser(data) {
     return {
-        type: actionTypes.SEARCH,
+        type: actionTypes.SEARCH_USER,
         data
     }
 }
 
-export function unfollow(data) {
+export function unfollowUser(data) {
     return {
-        type: actionTypes.UNFOLLOW,
+        type: actionTypes.UNFOLLOW_USER,
         data
     }
 }

@@ -1,5 +1,6 @@
-const User = require('../models/User');
+import User from '../models/User';
 const onlineUsers = [];
+import logger from '../logger/logger';
 
 class UsersService {
     addOnlineUser = async (userId) => {
@@ -28,10 +29,14 @@ class UsersService {
     }
 
     getUserById = async (userId) => {
-        let user = await User.findById(userId);
+        try {
+            let user = await User.findById(userId);
 
-        return user._doc ? user._doc : user;
+            return user._doc ? user._doc : user;
+        } catch (error) {
+            logger.log('error',`Find user with Id: ${userId} error! ${error.message}`, ...error);
+        }
     }
 }
 
-module.exports = UsersService;
+export default  UsersService;

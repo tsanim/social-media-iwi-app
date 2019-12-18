@@ -1,11 +1,29 @@
-import * as fetchStatusActions from '../store/actions/fetchStatusActions/actionsCreator';
 import * as userPostActions from '../store/actions/postsAtions/actionsCreator';
+import * as fetchStatusActions from '../store/actions/fetchStatusActions/actionsCreator';
 import URI from '../config/config';
 
 import httpRequest from '../utils/httpRequest';
 
+export function fetchCommentsLikes(commentId, onSuccess) {
+    const options = {
+        method: 'get',
+        url: `${URI}/feed/comments/likes/${commentId}`,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        onSuccess,
+        onError: (error) => {
+            console.log(error);
+        }
+    }
+
+    return httpRequest(options);
+}
+
 export function makeComment(commentData) {
     return (dispatch) => {
+        dispatch(fetchStatusActions.beginFetch());
+
         //init options for request
         const optionsReq = {
             method: 'post',
@@ -21,8 +39,7 @@ export function makeComment(commentData) {
             }
         }
 
-        //call wrapper func for request
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 
@@ -37,7 +54,7 @@ export function likeComment(commentId) {
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 
@@ -53,12 +70,14 @@ export function dislikeComment(commentId) {
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 
 export function deleteComment(commentId) {
     return (dispatch) => {
+        dispatch(fetchStatusActions.beginFetch());
+
         const optionsReq = {
             method: 'delete',
             url: `${URI}/feed/comments/delete/${commentId}`,
@@ -72,7 +91,7 @@ export function deleteComment(commentId) {
             }
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 

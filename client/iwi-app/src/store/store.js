@@ -9,7 +9,7 @@ import storage from 'redux-persist/lib/storage';
 import immutableTransform from 'redux-persist-transform-immutable';
 import createFilter from 'redux-persist-transform-filter';
 
-const saveSubsetFilter  = createFilter('root', 'systemReducer.curUser');
+const saveSubsetFilter  = createFilter('root', 'systemReducer.currentUser');
 
 const persistConfig = {
     transforms: [immutableTransform(), saveSubsetFilter],

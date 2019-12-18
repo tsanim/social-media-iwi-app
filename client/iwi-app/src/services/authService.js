@@ -10,31 +10,6 @@ export function registerUser(userData) {
             dispatch(errorsActions.fetchError(errors));
         };
 
-        const onRegisterSuccess = (data) => {
-            const optionsSignInReq = {
-                method: 'post',
-                url: `${URI}/auth/signin`,
-                data: userData,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                onSuccess: (data) => {
-                    const { token, user } = data;
-
-                    //set some of user info to local storage
-                    localStorage.setItem('username', user.username);
-                    localStorage.setItem('token', token);
-                    localStorage.setItem('userId', user._id);
-                    localStorage.setItem('role', user.roles);
-                    dispatch(authActions.registerUser(user));
-                },
-                onError
-            }
-
-            httpRequest(optionsSignInReq);
-        }
-
-
         const optionsReq = {
             method: 'post',
             url: `${URI}/auth/signup`,
@@ -42,11 +17,10 @@ export function registerUser(userData) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            onSuccess: onRegisterSuccess,
             onError
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
     }
 }
 
@@ -71,11 +45,29 @@ export function loginUser(userData) {
                 localStorage.setItem('token', token);
                 localStorage.setItem('userId', user._id);
                 localStorage.setItem('role', user.roles);
-                dispatch(authActions.registerUser(user));
+                dispatch(authActions.loginUser(user));
             },
             onError
         }
 
-        httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq, dispatch);
+    }
+}
+
+export function setCurrentUser(userId) {
+    return (dispatch) => {
+        const optionsReq = {
+            method: 'get',
+            url: `${URI}/user/info/${userId}`,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Api ' + localStorage.getItem('token')
+            },
+            onSuccess: (data) => {
+                dispatch(authActions.setCurrentUser(data.user));
+            }
+        };
+
+        return httpRequest(optionsReq, dispatch);
     }
 }

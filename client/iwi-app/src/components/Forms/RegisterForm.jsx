@@ -3,120 +3,140 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faUserAlt, faUserCircle, faEnvelope, faKey } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { registerUser } from '../../services/authFetcher';
+import { registerUser, loginUser } from '../../services/authService';
 import { resetErrors } from '../../store/actions/errorsActions/actionsCreator';
 import { wrapComponent } from 'react-snackbar-alert';
 import PropTypes from 'prop-types';
 import { List } from 'immutable';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import getFieldStyles from '../../utils/getFieldStyles';
 
-class RegisterForm extends Component {
-    state = {
+const initRegisterState = {
+    form: {
         email: '',
         username: '',
         firstName: '',
         lastName: '',
         password: '',
     }
+}
 
-    handleChangeInput = (e) => {
-        this.setState({ [e.target.name]: e.target.value })
-    }
+const validationSchema = Yup.object().shape({
+    email: Yup.string()
+        .email('Invalid email')
+        .required('Required'),
+    username: Yup.string()
+        .min(3, 'Username must be at least 3 symbols!')
+        .required('Required'),
+    firstName: Yup.string()
+        .min(2, 'First name must be at least 2 symbols!')
+        .required('Required'),
+    lastName: Yup.string()
+        .min(2, 'Last name must be at least 2 symbols!')
+        .required('Required'),
+    password: Yup.string()
+        .matches(/^.*(?=.{6,})(?=.*[a-zA-Z])[a-zA-Z0-9]+$/, 'Password must contain at least one letter and at least one digit!')
+        .min(8, 'Password must be at least 8 digits')
+        .required('Required'),
+});
 
-    handleSubmit = (e) => {
-        e.preventDefault();
-        const { email, username, firstName, lastName, password } = this.state;
+class RegisterForm extends Component {
+    state = initRegisterState;
 
-        if (email === '' 
-        || password === ''
-        || username === ''
-        || firstName === ''
-        || lastName === '') {
-            this.props.createSnackbar({
-                message: 'All fields are required!',
-                timeout: 3000,
+    handleSubmit = (form) => {
+        this.props.register(form)
+            .then(() => {
+                return this.props.loginUser({ email: form.email, password: form.password });
             })
-        } else {
-            this.props.register({ 
-                email: this.state.email, 
-                password: this.state.password,
-                username: this.state.username,
-                firstName: this.state.firstName,
-                lastName: this.state.lastName
+            .then(() => {
+                //clear all errors 
+                this.props.resetErrors();
+            })
+            .catch((error) => {
+                console.log(error);
             });
-
-            //clear all errors 
-            this.props.resetErr();
-        }
     }
 
     render() {
-        const { username, firstName, lastName, email, password } = this.state;
         return (
             <main>
-                <form id="registerForm" onSubmit={this.handleSubmit}>
-                    <h1>SIGN UP</h1>
+                <Formik
+                    onSubmit={this.handleSubmit}
+                    initialValues={initRegisterState.form}
+                    validationSchema={validationSchema}
+                >
+
                     {
-                        (this.props.errors.size > 0 && (<p className="error">{this.props.errors.getIn(['0', 'msg'])}</p>))
+                        ({ errors }) => {
+                            return (
+                                <Form id="registerForm">
+                                    <h1>SIGN UP</h1>
+                                    {
+                                        (this.props.errors.size > 0 && (<p className="error">{this.props.errors.getIn(['0', 'msg'])}</p>))
+                                    }
+                                    <span>
+                                        <FontAwesomeIcon icon={faUserCircle} />
+                                        <Field
+                                            type="text"
+                                            name="username"
+                                            placeholder="Username..."
+                                            id="username"
+                                            style={getFieldStyles(errors, 'username')}
+                                        />
+                                        <ErrorMessage className="error-message" name="username" component="div" />
+                                    </span>
+                                    <span>
+                                        <FontAwesomeIcon icon={faUser} />
+                                        <Field
+                                            type="text"
+                                            name="firstName"
+                                            placeholder="First Name..."
+                                            id="firstName"
+                                            style={getFieldStyles(errors, 'firstName')}
+                                        />
+                                        <ErrorMessage className="error-message" name="firstName" component="div" />
+                                    </span>
+                                    <span>
+                                        <FontAwesomeIcon icon={faUserAlt} />
+                                        <Field
+                                            type="text"
+                                            name="lastName"
+                                            placeholder="Last Name..."
+                                            id="lastName"
+                                            style={getFieldStyles(errors, 'lastName')}
+                                        />
+                                        <ErrorMessage className="error-message" name="lastName" component="div" />
+                                    </span>
+                                    <span>
+                                        <FontAwesomeIcon icon={faEnvelope} />
+                                        <Field
+                                            type="email"
+                                            name="email"
+                                            placeholder="Email..."
+                                            id="email"
+                                            style={getFieldStyles(errors, 'email')}
+                                        />
+                                        <ErrorMessage className="error-message" name="email" component="div" />
+                                    </span>
+                                    <span>
+                                        <FontAwesomeIcon icon={faKey} />
+                                        <Field
+                                            type="password"
+                                            name="password"
+                                            placeholder="Password..."
+                                            id="pass"
+                                            style={getFieldStyles(errors, 'password')}
+                                        />
+                                        <ErrorMessage className="error-message" name="password" component="div" />
+                                    </span>
+                                    <input type="submit" value="SIGN UP" />
+                                </Form>
+                            )
+                        }
                     }
-                    <span>
 
-                        <FontAwesomeIcon icon={faUserCircle} />
-                        <input
-                            type="text"
-                            name="username"
-                            placeholder="Username..."
-                            id="username"
-                            onChange={this.handleChangeInput}
-                            value={username}
-                        />
-
-                    </span>
-                    <span>
-                        <FontAwesomeIcon icon={faUser} />
-                        <input
-                            type="text"
-                            name="firstName"
-                            placeholder="First Name..."
-                            id="firstName"
-                            onChange={this.handleChangeInput}
-                            value={firstName}
-                        />
-                    </span>
-                    <span>
-                        <FontAwesomeIcon icon={faUserAlt} />
-                        <input
-                            type="text"
-                            name="lastName"
-                            placeholder="Last Name..."
-                            id="lastName"
-                            onChange={this.handleChangeInput}
-                            value={lastName}
-                        />
-                    </span>
-                    <span>
-                        <FontAwesomeIcon icon={faEnvelope} />
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder="Email..."
-                            id="email"
-                            onChange={this.handleChangeInput}
-                            value={email}
-                        />
-                    </span>
-                    <span>
-                        <FontAwesomeIcon icon={faKey} />
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="Password..."
-                            id="pass"
-                            onChange={this.handleChangeInput}
-                            value={password}
-                        />
-                    </span>
-                    <input type="submit" defaultValue="SIGN UP" />
-                </form>
+                </Formik>
                 <div className="message">
                     <span>You are already sign in?</span> <Link to="/signin">SIGN IN</Link>
                 </div>
@@ -126,14 +146,15 @@ class RegisterForm extends Component {
 
     //clear all errors after component unmount, so the same errors not showing up on another component        
     componentWillUnmount() {
-        this.props.resetErr();
+        this.props.resetErrors();
     }
 }
 
 function mapDispatchToProps(dispatch) {
     return {
         register: (data) => dispatch(registerUser(data)),
-        resetErr: () => dispatch(resetErrors())
+        resetErrors: () => dispatch(resetErrors()),
+        loginUser: (data) => dispatch(loginUser(data))
     }
 }
 
@@ -145,7 +166,7 @@ function mapStateToProps(state) {
 
 RegisterForm.propTypes = {
     register: PropTypes.func,
-    resetErr: PropTypes.func,
+    resetErrors: PropTypes.func,
     createSnackbar: PropTypes.func,
     errors: PropTypes.instanceOf(List),
 }

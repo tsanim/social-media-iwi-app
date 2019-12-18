@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './Dropdown.css';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
+import PropTypes from 'prop-types';
 
 function Dropdown(props) {
     return (
@@ -17,12 +18,8 @@ function Dropdown(props) {
     )
 }
 
-// Dropdown.propTypes = {
-//     user: PropTypes.object,
-//     resetUserPostsHandler: PropTypes.func,
-//     signoutHandler: PropTypes.func,
-//     switchToOffline: PropTypes.func,
-//     switchToOnline: PropTypes.func,
-// }
+Dropdown.propTypes = {
+    notifications: PropTypes.array,
+}
 
 export default Dropdown;
