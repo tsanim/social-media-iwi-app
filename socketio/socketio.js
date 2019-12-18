@@ -98,7 +98,6 @@ export default (express, socketio, http, socketPORT, logger) => {
                 const senderUser = await User.findById(senderId).populate('notifications');
 
                 let room = await Room.findOne({ pairUsers: { $all: [userId, senderId] } });
-                let roomId = room._doc ? room._doc._id : room._id;
 
                 // If does not have a room with this two users - create one
                 if (!room) {
@@ -107,6 +106,8 @@ export default (express, socketio, http, socketPORT, logger) => {
                         messages: []
                     });
                 }
+
+                let roomId = room._doc ? room._doc._id : room._id;
 
                 socket.join(roomId);
 
