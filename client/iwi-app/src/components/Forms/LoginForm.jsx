@@ -33,9 +33,6 @@ class LoginForm extends Component {
 
     handleSubmit = async (form) => {
         await this.props.loginUser(form);
-
-        //clear all errors 
-        await this.props.resetErrors();
     }
 
     render() {
@@ -48,11 +45,12 @@ class LoginForm extends Component {
                 >
                     {
                         ({ errors }) => {
+                            console.log(this.props.errors.getIn(['0', 'message']));
                             return (
                                 <Form id="loginForm">
                                     <h1>SIGN IN</h1>
                                     {
-                                        (this.props.errors.size > 0 && (<p className="error">{this.props.errors.getIn(['0', 'message'])}</p>))
+                                        (this.props.errors.size > 0 ? (<p className="error">{this.props.errors.getIn(['0', 'message']) ? this.props.errors.getIn(['0', 'message']) : this.props.errors.getIn(['0', 'msg'])}</p>) : null)
                                     }
                                     <span>
                                         <FontAwesomeIcon icon={faEnvelope} />

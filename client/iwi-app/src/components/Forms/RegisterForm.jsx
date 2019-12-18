@@ -49,10 +49,6 @@ class RegisterForm extends Component {
             .then(() => {
                 return this.props.loginUser({ email: form.email, password: form.password });
             })
-            .then(() => {
-                //clear all errors 
-                this.props.resetErrors();
-            })
             .catch((error) => {
                 console.log(error);
             });
@@ -73,7 +69,7 @@ class RegisterForm extends Component {
                                 <Form id="registerForm">
                                     <h1>SIGN UP</h1>
                                     {
-                                        (this.props.errors.size > 0 && (<p className="error">{this.props.errors.getIn(['0', 'msg'])}</p>))
+                                        (this.props.errors.size > 0 ? (<p className="error">{this.props.errors.getIn(['0', 'message']) ? this.props.errors.getIn(['0', 'message']) : this.props.errors.getIn(['0', 'msg'])}</p>) : null)
                                     }
                                     <span>
                                         <FontAwesomeIcon icon={faUserCircle} />
