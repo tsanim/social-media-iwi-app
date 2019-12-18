@@ -25,18 +25,22 @@ class Chat extends Component {
     }
 
     showRoomHandler = async (e) => {
-        const onlineUser = this.state.onlineUsers.find(u => u._id === e.currentTarget.id);
 
-        socket.emit('joinRoom', { userId: onlineUser._id, senderId: localStorage.getItem('userId') });
-        socket.emit('sendNotification', { senderId: localStorage.getItem('userId'), notificatedUserId: onlineUser._id });
+        try {
+            const onlineUser = this.state.onlineUsers.find(u => u._id === e.currentTarget.id);
 
-        let stateMessages = await getRoomMessages(socket, localStorage.getItem('userId') , onlineUser._id);
+            socket.emit('joinRoom', { userId: onlineUser._id, senderId: localStorage.getItem('userId') });
+            socket.emit('sendNotification', { senderId: localStorage.getItem('userId'), notificatedUserId: onlineUser._id });
+            let stateMessages = await getRoomMessages(socket, localStorage.getItem('userId'), onlineUser._id);
 
-        this.setState(oldState => ({
-            onlineUser,
-            isRoomShown: true,
-            messages: [...stateMessages]
-        }));
+            this.setState(oldState => ({
+                onlineUser,
+                isRoomShown: true,
+                messages: [...stateMessages]
+            }));
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     sendMessageHandler = (e) => {
@@ -156,15 +160,19 @@ class Chat extends Component {
         const { sender } = queryString.parse(this.props.location.search);
 
         if ((!oldSender && sender) || (oldSender !== sender)) {
-            let stateMessages = await getRoomMessages(socket, localStorage.getItem('userId'), sender);
-            let onlineUser = await joinSenderRoom(socket, localStorage.getItem('userId'), sender);
+            try {
+                let stateMessages = await getRoomMessages(socket, localStorage.getItem('userId'), sender)
+                let onlineUser = await joinSenderRoom(socket, localStorage.getItem('userId'), sender);
 
-            this.setState({
-                isRoomShown: true,
-                onlineUser,
-                roomId: onlineUser.roomId,
-                messages: stateMessages
-            });
+                this.setState({
+                    isRoomShown: true,
+                    onlineUser,
+                    roomId: onlineUser.roomId,
+                    messages: stateMessages
+                });
+            } catch (error) {
+                console.log(error);
+            }
         }
     }
 
@@ -174,34 +182,46 @@ class Chat extends Component {
         this.socketIOConfig();
 
         if (this.state.onlineUser._id) {
-            let messages = await getRoomMessages(socket, localStorage.getItem('userId'), this.state.onlineUser._id);
+            try {
+                let messages = await getRoomMessages(socket, localStorage.getItem('userId'), this.state.onlineUser._id);
 
-            this.setState({ messages });
+                this.setState({ messages });
+            } catch (error) {
+                console.log(error);
+            }
         }
 
         if (sender) {
-            let stateMessages = await getRoomMessages(socket, localStorage.getItem('userId'), sender);
-            let onlineUser = await joinSenderRoom(socket, localStorage.getItem('userId'), sender);
+            try {
+                let stateMessages = await getRoomMessages(socket, localStorage.getItem('userId'), sender);
+                let onlineUser = await joinSenderRoom(socket, localStorage.getItem('userId'), sender);
 
-            this.setState(oldState => {
-                return {
-                    isRoomShown: !oldState.isRoomShown,
-                    onlineUser,
-                    roomId: onlineUser.roomId,
-                    messages: stateMessages
-                }
-            })
+                this.setState(oldState => {
+                    return {
+                        isRoomShown: !oldState.isRoomShown,
+                        onlineUser,
+                        roomId: onlineUser.roomId,
+                        messages: stateMessages
+                    }
+                });
+            } catch (error) {
+                console.log(error);
+            }
         }
 
         this.timer = setInterval(async () => {
-            const onlineUsers = await getOnlineUsers(socket);
-            const currentUserSubs = this.props.currentUser.get('subscriptions').toJS();
+            try {
+                const onlineUsers = await getOnlineUsers(socket);
+                const currentUserSubs = this.props.currentUser.get('subscriptions').toJS();
 
-            this.setState({
-                onlineUsers: onlineUsers.filter(onlineUser => currentUserSubs.some((u) => {
-                    return u._id === onlineUser._id.toString()
-                }))
-            });
+                this.setState({
+                    onlineUsers: onlineUsers.filter(onlineUser => currentUserSubs.some((u) => {
+                        return u._id === onlineUser._id.toString()
+                    }))
+                });
+            } catch (error) {
+                console.log(error);
+            }
         }, 2000);
     }
 
