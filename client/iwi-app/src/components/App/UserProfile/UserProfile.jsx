@@ -89,7 +89,7 @@ class UserProfile extends Component {
 function mapStateToProps(state) {
     return {
         user: state.usersReducer.get('foundUser'),
-        foundUserPosts: state.postsReducer.get('posts').filter(post => post.getIn(['creator', '_id']) === state.usersReducer.getIn(['foundUser', 'id'])),
+        foundUserPosts: state.postsReducer.get('posts').filter(post => post.getIn(['creator', '_id']) === (state.usersReducer.getIn(['foundUser', 'id']) ? state.usersReducer.getIn(['foundUser', 'id']) : state.usersReducer.getIn(['foundUser', '_id']))),
         currentUser: state.systemReducer.get('currentUser')
     }
 }
