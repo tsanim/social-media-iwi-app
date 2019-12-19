@@ -91,6 +91,10 @@ function Post({ post, currentUser, likePostHandler, dislikePostHandler, deletePo
         httpRequest(options);
     }
 
+    /*
+        TODO: Add AbortController() to useEffect functions to stop request when component is unmount
+    */
+
     //when component did mound , fetched the likers of the comment for showing them in the modal
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
