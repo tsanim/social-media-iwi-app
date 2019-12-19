@@ -59,7 +59,7 @@ class App extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (!localStorage.getItem('userId')) {
+    if (!localStorage.getItem('userId') || !this.props.connectionStatus) {
       clearInterval(this.timer);
     }
   }
@@ -74,7 +74,7 @@ class App extends Component {
       clearInterval(this.timer);
     }
 
-    if (localStorage.getItem('userId')) {
+    if (localStorage.getItem('userId') && this.props.connectionStatus) {
       this.timer = setInterval(() => {
         this.props.setCurrentUser(localStorage.getItem('userId'));
       }, 1000);
@@ -90,6 +90,7 @@ function mapStateToProps(state) {
   return {
     currentUser: state.systemReducer.get('currentUser'),
     errors: state.errors,
+    connectionStatus: state.systemReducer.get('connectionStatus')
   }
 }
 
