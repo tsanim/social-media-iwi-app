@@ -20,10 +20,6 @@ describe('Comments service', () => {
         const store = mockStore({ posts: [] });
 
         const expectedActions = [{
-            type: fetchStatusTypes.FETCH_BEGIN
-        }, {
-            type: fetchStatusTypes.FETCH_DATA
-        }, {
             type: postsActionTypes.COMMENT_POST,
             data: data.post
         }, {
@@ -76,10 +72,6 @@ describe('Comments service', () => {
         const store = mockStore({ posts: [] });
 
         const expectedActions = [{
-            type: fetchStatusTypes.FETCH_BEGIN
-        }, {
-            type: fetchStatusTypes.FETCH_DATA
-        }, {
             type: postsActionTypes.DELETE_COMMENT,
             data: data.post
         }, {

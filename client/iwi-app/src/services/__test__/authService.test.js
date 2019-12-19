@@ -21,6 +21,8 @@ describe('Auth service', () => {
         const store = mockStore({ currUser: {} });
 
         const expectedActions = [{
+            type: fetchStatusTypes.FETCH_BEGIN
+        }, {
             type: fetchStatusTypes.FETCH_DATA
         }, {
             type: authActionsTypes.LOGIN_USER,
@@ -43,6 +45,8 @@ describe('Auth service', () => {
         const store = mockStore({ currUser: {} });
 
         const expectedActions = [{
+            type: fetchStatusTypes.FETCH_BEGIN
+        }, {
             type: fetchStatusTypes.FETCH_DATA
         }];
 
@@ -63,8 +67,6 @@ describe('Auth service', () => {
         const store = mockStore({ currUser: {} });
 
         const expectedActions = [{
-            type: fetchStatusTypes.FETCH_DATA
-        }, {
             type: authActionsTypes.SET_CURRENT_USER,
             data: data.user
         }];
