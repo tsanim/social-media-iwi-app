@@ -1,5 +1,5 @@
-function getRoomMessages(socket, curUserId, onlineUserId) {
-    socket.emit('getMessages', { curUserId, onlineUserId });
+function getRoomMessages(socket, currentUserId, onlineUserId) {
+    socket.emit('getMessages', { currentUserId, onlineUserId });
 
     return new Promise((resolve, reject) => {
         socket.on('messages', ({ messages }) => {
