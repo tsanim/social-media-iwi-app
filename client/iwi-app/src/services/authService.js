@@ -1,11 +1,14 @@
 import * as authActions from '../store/actions/authActions/actionsCreator';
 import * as errorsActions from '../store/actions/errorsActions/actionsCreator';
+import * as fetchStatusActions from '../store/actions/fetchStatusActions/actionsCreator';
 import URI from '../config/config';
 
 import httpRequest from '../utils/httpRequest';
 
 export function registerUser(userData) {
     return (dispatch) => {
+        dispatch(fetchStatusActions.beginFetch());
+
         const onError = (errors) => {
             dispatch(errorsActions.fetchError(errors));
         };
@@ -26,6 +29,8 @@ export function registerUser(userData) {
 
 export function loginUser(userData) {
     return (dispatch) => {
+        dispatch(fetchStatusActions.beginFetch());
+        
         const onError = (errors) => {
             dispatch(errorsActions.fetchError(errors));
         };
@@ -68,6 +73,6 @@ export function setCurrentUser(userId) {
             }
         };
 
-        return httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq);
     }
 }
