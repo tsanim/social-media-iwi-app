@@ -1,3 +1,7 @@
+/*
+    fetchRequest function is made to send requests with FETCH API to the server.
+*/
+
 async function fetchRequest(options, isOffline) {
     try {
         if (!isOffline) {

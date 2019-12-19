@@ -1,3 +1,7 @@
+/*
+    calcTime function is made to calculate how much time is long
+*/
+
 export default function calcTime(dateIsoFormat) {
     let diff = new Date() - (new Date(dateIsoFormat));
     diff = Math.floor(diff / 60000);

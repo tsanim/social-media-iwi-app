@@ -24,7 +24,7 @@ export default function system(oldState = initState, action) {
         case connStatusTypes.ONLINE:
             return oldState.set('connectionStatus', true);
         case connStatusTypes.OFFLINE:
-            return oldState.set('connectionStatus', true);;
+            return oldState.set('connectionStatus', false);;
         case fetchStatusTypes.FETCH_BEGIN:
             return oldState.set('fetchStatus', oldState.get('fetchStatus') + 1);
         case fetchStatusTypes.FETCH_ERROR:

@@ -31,7 +31,7 @@ function validateUser(req, res) {
     return true;
 }
 
-export default  {
+export default {
     signIn: (req, res, next) => {
         //check if validate func return true or false for valid data
         if (validateUser(req, res)) {

@@ -1,5 +1,9 @@
 import axios from 'axios';
 
+/*
+    axiosRequest function is made for send request to the server with axios API.
+*/
+
 async function axiosRequest(options, isOffline) {
     try {
         if (!isOffline) {

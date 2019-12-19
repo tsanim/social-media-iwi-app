@@ -1,5 +1,9 @@
 import { getIn } from 'formik';
 
+/*
+    getFieldStyles is made to generate field styles for a certain field
+*/
+
 export default function getFieldStyles(errors, fieldName) {
     if (getIn(errors, fieldName)) {
         return {
