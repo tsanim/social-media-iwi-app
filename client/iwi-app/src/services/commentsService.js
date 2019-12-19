@@ -22,8 +22,6 @@ export function fetchCommentsLikes(commentId, onSuccess) {
 
 export function makeComment(commentData) {
     return (dispatch) => {
-        dispatch(fetchStatusActions.beginFetch());
-
         //init options for request
         const optionsReq = {
             method: 'post',
@@ -39,7 +37,7 @@ export function makeComment(commentData) {
             }
         }
 
-        return httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq);
     }
 }
 
@@ -54,7 +52,7 @@ export function likeComment(commentId) {
             }
         }
 
-        return httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq);
     }
 }
 
@@ -70,14 +68,12 @@ export function dislikeComment(commentId) {
             }
         }
 
-        return httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq);
     }
 }
 
 export function deleteComment(commentId) {
     return (dispatch) => {
-        dispatch(fetchStatusActions.beginFetch());
-
         const optionsReq = {
             method: 'delete',
             url: `${URI}/feed/comments/delete/${commentId}`,
@@ -91,7 +87,7 @@ export function deleteComment(commentId) {
             }
         }
 
-        return httpRequest(optionsReq, dispatch);
+        return httpRequest(optionsReq);
     }
 }
 
