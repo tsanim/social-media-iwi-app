@@ -45,7 +45,6 @@ class LoginForm extends Component {
                 >
                     {
                         ({ errors }) => {
-                            console.log(this.props.errors.getIn(['0', 'message']));
                             return (
                                 <Form id="loginForm">
                                     <h1>SIGN IN</h1>
