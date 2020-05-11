@@ -177,7 +177,7 @@ export default (express, socketio, http, socketPORT, logger) => {
         })
     });
 
-    if(process.env.NODE_ENV === 'development') {
+    if(!process.env.NODE_ENV) {
         socketServer.listen(socketPORT, () => console.log(`Socket server is listening at port: ${socketPORT}`));
     }
 }

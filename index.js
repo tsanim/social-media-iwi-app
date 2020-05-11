@@ -80,4 +80,3 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.listen(config.port, () => console.log(`Server is listening to port ${config.port}`));
-
