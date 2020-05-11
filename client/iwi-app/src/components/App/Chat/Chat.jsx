@@ -9,8 +9,8 @@ import OnlineUsers from '../../ChatComponents/OnlineUsers';
 import { getRoomMessages, getOnlineUsers, joinSenderRoom } from '../../../services/chatService';
 import { wrapComponent } from 'react-snackbar-alert';
 
-const chatEndPoint = 'localhost:8888'
-const socket = io(chatEndPoint);
+const chatEndPoint = 'localhost:8888';
+const socket = process.env.NODE_ENV === 'development' ? io(chatEndPoint) : io();
 
 class Chat extends Component {
     state = {
