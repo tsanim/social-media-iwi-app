@@ -6,9 +6,9 @@
 
  import Service from './UsersService';
 
-export default (express, socketio, http, socketPORT, logger) => {
+export default (app, socketio, http, socketPORT, logger) => {
     //init socket io and socket server
-    const socketServer = http.createServer(express());
+    const socketServer = http.createServer(app);
     const io = socketio(socketServer);
 
     //init UserService

@@ -55,7 +55,7 @@ initRoutes(app)
 
 //init socketio
 import initSocketIo from './socketio/socketio';
-initSocketIo(express, socketio, http, config.socketPORT, logger);
+initSocketIo(app, socketio, http, config.socketPORT, logger);
 
 // General error handling
 app.use((error, req, res, next) => {
@@ -79,4 +79,4 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-app.listen(config.port, () => console.log(`Server is listening to port ${config.port}`));
+http.createServer(app).listen(config.port, () => console.log(`Server is listening to port ${config.port}`));
